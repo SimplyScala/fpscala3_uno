@@ -20,7 +20,7 @@ enum SensDeLaPartie:
 	case SensHoraire
 	case SensAntiHoraire
 
-enum CarteDeUno derives Show:
+enum CarteDeUno:
 	case CarteNumeric(valeur: ValeurNumeriqueDeCarte, couleur: CouleurDeCarte)
 
 enum ValeurNumeriqueDeCarte /*derives Eq, Ordering, Show*/:
@@ -44,7 +44,7 @@ enum CouleurDeCarte /*derives Eq, Show*/:
 trait Eq[T]:
 	def equal(x: T, y: T): Boolean
 	extension (x: T)
-		def isEqualTo(y: T) = equal(x, y)
+		def isEqualTo(y: T): Boolean = equal(x, y)
 
 
 
