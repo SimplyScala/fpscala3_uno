@@ -9,8 +9,6 @@ import scala.deriving.*
 
 /**
  * Une partie de Uno:
- *     - se joue avec au minimum des Joueurs
- *
  */
 case class PartieDeUno(uid: SafeUUID,
                        joueurs: Joueurs,
@@ -50,14 +48,3 @@ enum JokerType derives Eq, Show:
 	case Plus2Cartes
 	case Passer
 	case ChangementDeSens
-
-trait Ordering[T]:
-	def compare(x: T, y: T): Order
-	extension (x: T)
-		def > (y: T): Boolean = compare(x, y) == Order.GT
-		def < (y: T): Boolean = compare(x, y) == Order.LT
-
-enum Order:
-	case EQ
-	case LT
-	case GT
