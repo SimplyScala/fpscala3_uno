@@ -2,6 +2,7 @@ package fp.scala.uno.domain.models
 
 import fp.scala.uno.domain.models.joueurs.Joueurs
 import fp.scala.utils.models.safeuuid.SafeUUID
+import fp.scala.utils.typeclass.eq.Eq
 import fp.scala.utils.typeclass.show.Show
 
 import scala.deriving.*
@@ -13,8 +14,9 @@ import scala.deriving.*
  */
 case class PartieDeUno(uid: SafeUUID,
                        joueurs: Joueurs,
-                       placementDesJoueurs: Set[Int], // TODO mettre un type
-                       sensDeLaPartie: SensDeLaPartie)
+                       sensDeLaPartie: SensDeLaPartie,
+                       pioche: Seq[CarteDeUno],
+                       talon: Seq[CarteDeUno])
 
 enum SensDeLaPartie:
 	case SensHoraire
@@ -22,8 +24,11 @@ enum SensDeLaPartie:
 
 enum CarteDeUno:
 	case CarteNumeric(valeur: ValeurNumeriqueDeCarte, couleur: CouleurDeCarte)
+	case Joker(jokerType: JokerType, couleur: CouleurDeCarte)
+	case Plus4Cartes
+	case ChangementDeCouleur
 
-enum ValeurNumeriqueDeCarte /*derives Eq, Ordering, Show*/:
+enum ValeurNumeriqueDeCarte derives Eq, Show/*, Ordering*/:
 	case ZERO
 	case UN
 	case DEUX
@@ -35,18 +40,16 @@ enum ValeurNumeriqueDeCarte /*derives Eq, Ordering, Show*/:
 	case HUIT
 	case NEUF
 
-enum CouleurDeCarte /*derives Eq, Show*/:
+enum CouleurDeCarte derives Eq, Show:
 	case Jaune
 	case Bleu
 	case Rouge
 	case Vert
 
-trait Eq[T]:
-	def equal(x: T, y: T): Boolean
-	extension (x: T)
-		def isEqualTo(y: T): Boolean = equal(x, y)
-
-
+enum JokerType derives Eq, Show:
+	case Plus2Cartes
+	case Passer
+	case ChangementDeSens
 
 trait Ordering[T]:
 	def compare(x: T, y: T): Order
@@ -58,4 +61,3 @@ enum Order:
 	case EQ
 	case LT
 	case GT
-

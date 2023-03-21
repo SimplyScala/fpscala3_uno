@@ -4,10 +4,10 @@ import zio.{ZIO, ZIOAppDefault}
 import zio.Console.*
 
 import java.io.IOException
-import fp.scala.uno.domain.models.{CarteDeUno, ValeurNumeriqueDeCarte, CouleurDeCarte}
-import ValeurNumeriqueDeCarte._
-import CouleurDeCarte._
-
+import fp.scala.uno.domain.models.{CarteDeUno, CouleurDeCarte, ValeurNumeriqueDeCarte}
+import ValeurNumeriqueDeCarte.*
+import CouleurDeCarte.*
+import fp.scala.utils.typeclass.eq.Eq.*
 import fp.scala.utils.typeclass.show.Show.*
 
 object Main extends ZIOAppDefault:
@@ -17,6 +17,7 @@ object Main extends ZIOAppDefault:
 		for {
 			_   <- printLine("FP Uno !")
 			_   <- printLine(game)
+			_ <- printLine(CarteDeUno.CarteNumeric(ZERO, Bleu) === CarteDeUno.CarteNumeric(ZERO, Bleu))
 			/*name <- readLine
 			_    <- printLine(s"Hello, ${name}, welcome to ZIO!")*/
 		} yield ()
@@ -24,12 +25,3 @@ object Main extends ZIOAppDefault:
 	private def game: String = {
 		CarteDeUno.CarteNumeric(ZERO, Bleu).show
 	}
-
-
-@main def hello: Unit = {
-	println("Hello world!")
-	println(msg)
-	println(CarteDeUno.CarteNumeric(ZERO, Bleu).show)
-}
-
-def msg = "I was compiled by Scala 3. :)"
