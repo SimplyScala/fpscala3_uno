@@ -20,4 +20,4 @@ object Show extends AutoDerivation[Show] :
 
 	given Show[String] = x => "\"$x\""
 
-	extension[T] (x: T)(using s: Show[T]) {def show: String = s(x)}
+	extension[T] (x: T)(using s: Show[T]) { def show: String = s(x) }

@@ -1,12 +1,14 @@
 package fp.scala.uno.domain.models.joueurs
 
+import fp.scala.uno.domain.models.CarteDeUno
 import fp.scala.utils.base.dsl.*
 import fp.scala.utils.models.safeuuid.SafeUUID
 
 case class Joueur(uid: SafeUUID,
                   nom: String,
                   // TODO représenter le placement pour qu'il ne puisse pas y avoir d'incohérence, peut être dans Joueurs
-                  placement: Int)
+                  placement: Int,
+                  main: Seq[CarteDeUno] = Nil)
 
 /**
  *  Invariants
@@ -24,3 +26,4 @@ object Joueurs:
 
 	extension (js: Joueurs)
 		def toSet: Set[Joueur] = js.joueurs
+		def foreach[B](f: Joueur => Joueur): Joueurs = JoueursImpl(js.joueurs.map { f })

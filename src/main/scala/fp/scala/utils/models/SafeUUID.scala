@@ -1,5 +1,8 @@
 package fp.scala.utils.models
 
+import fp.scala.utils.typeclass.show.Show
+import fp.scala.utils.typeclass.eq.Eq
+
 import java.util.UUID
 import zio.prelude.*
 
@@ -21,3 +24,11 @@ package object safeuuid:
 
 	extension (uid: SafeUUID)
 		def safeValue: String = SafeUUIDT.unwrap(uid)
+
+	object Typeclass:
+		/*inline */given Show[SafeUUID] with
+			def apply(x: SafeUUID): String = x.safeValue
+			
+		given Eq[SafeUUID] with
+			def equal(x: SafeUUID, y: SafeUUID) = x.safeValue == y.safeValue	
+				
