@@ -8,6 +8,7 @@ import fp.scala.utils.base.dsl.*
 import fp.scala.utils.typeclass.eq.Eq.*
 import fp.scala.utils.models.safeuuid.Typeclass.given_Eq_SafeUUID
 
+/** https://www.regledujeu.fr/uno/ */
 object JeuDeUno {
 	/**
 	 * On vérifie qu'il y a le bon nombre de joueurs
@@ -56,9 +57,19 @@ object JeuDeUno {
 	 */
 	def UnJoueurJoue(action: ActionDeJeu, partie: PartieDeUno): PartieDeUno = ???
 
-	def UnJouerDitUno(joueur: SafeUUID): PartieDeUno = ???
+	/**
+	 * Un joueur dit Uno
+	 *  - Il faut qu'il ne lui reste qu'une seule carte
+	 *  - il ne faut pas qu'un autre joueur ai dit `ContreUno avant
+	 */
+	def Uno(joueur: SafeUUID): PartieDeUno = ???
 
-	def UnJouerDitTaPasDisUno(joueurQuiParle: SafeUUID, joueurQuiNaPasDitUno: SafeUUID): PartieDeUno = ???
+	/**
+	 * Un joueur dit contre Uno
+	 *  - Il faut qu'un joueur n'est plus qu'une carte
+	 *  - Il faut que ce joueur n'est pas encore dit `Uno
+	 */
+	def ContreUno(joueur: SafeUUID): PartieDeUno = ???
 
 
 	/** TODO
