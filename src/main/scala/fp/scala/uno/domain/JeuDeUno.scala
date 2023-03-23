@@ -49,7 +49,8 @@ object JeuDeUno extends PreparerUnePartie {
 	 * Quand le 1er joueur est prêt il lance la partie
 	 * On retourne la première carte de la pioche et on la met dans le talon
 	 */
-	def CommencerLaPartie(partie: PartieDeUno): PartieDeUno = ???
+	def CommencerLaPartie(partie: PartieDeUno): PartieDeUno =
+		partie.copy(pioche = partie.pioche.tail, talon = partie.pioche.head :: Nil)
 
 	/**
 	 * Un joueur

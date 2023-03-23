@@ -77,11 +77,13 @@ class PartieDeUnoTest extends AnyFunSpec with should.Matchers {
 		}
 	}
 
-	describe("LancerUnePartie") {
-		it("LancerUnePartie simple") {
+	describe("CommencerLaPartie") {
+		it("CommencerLaPartie simple") {
 			val partie = prepareUnePartie
 
-			
+			CommencerLaPartie(partie) shouldBe partie.copy(pioche = partie.pioche.tail, talon = partie.pioche.head :: Nil)
 		}
+
+		// TODO la première carte génère un évènement (+2, <=>, stop, changeCouleur, +4)
 	}
 }
