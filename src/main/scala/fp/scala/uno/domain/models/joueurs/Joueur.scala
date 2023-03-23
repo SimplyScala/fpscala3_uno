@@ -23,7 +23,7 @@ object Joueurs:
 	def apply(rawJoueurs: Set[Joueur]): Either[String, Joueurs] =
 		if(rawJoueurs.size >= 3) JoueursImpl(rawJoueurs).right
 		else "Il faut 3 joueurs minimum".left
-
+		
 	extension (js: Joueurs)
 		def toSet: Set[Joueur] = js.joueurs
 		def foreach[B](f: Joueur => Joueur): Joueurs = JoueursImpl(js.joueurs.map { f })

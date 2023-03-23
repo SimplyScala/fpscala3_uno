@@ -9,7 +9,7 @@ import fp.scala.utils.typeclass.eq.Eq.*
 import fp.scala.utils.models.safeuuid.Typeclass.given_Eq_SafeUUID
 
 /** https://www.regledujeu.fr/uno/ */
-object JeuDeUno {
+object JeuDeUno extends PreparerUnePartie {
 	/**
 	 * On vérifie qu'il y a le bon nombre de joueurs
 	 * On distribue n cartes à chaque joueur
@@ -20,21 +20,27 @@ object JeuDeUno {
 		val nbJoueurs = joueurs.size
 
 		val cardsToPick = (1 :: (1 to nbDeCarteADistribuer * nbJoueurs)
-							.toList
-							.filter { i => i % nbJoueurs == 0 })
-							.take(nbDeCarteADistribuer)
+			.toList
+			.filter { i => i % nbJoueurs == 0 }
+			.map { _ +1 })
+			.take(nbDeCarteADistribuer)
 
-		val (joueursAvecMain, piocheRestante) = joueurs.foldLeft((joueurs, pioche)) { case ((js, p), joueur) =>
-			val (carteDistribuées, restePioche) = p.zipWithIndex
-					.partition { case (carte, i) => cardsToPick.exists { _ == i + 1 } }
+		val result = joueurs.foldLeft(MainDesJoueurs()) { case (acc, joueur) =>
+			val pick = cardsToPick.map { _ + acc.counter }
+
+			val (carteDistribuées, restePioche) = pioche.zipWithIndex.partition { case (carte, i) => pick.exists { _ == i +1 } }
 			val joueurAvecMain = joueur.copy(main = carteDistribuées.map { _._1 })
 
-			val updateJoueur = js.map { j => if(j.uid === joueurAvecMain.uid) joueurAvecMain else j }
-
-			(updateJoueur, restePioche.map { case (c, _) => c })
+			acc.copy(
+				counter = acc.counter +1,
+				cartesARetirer = acc.cartesARetirer ++ pick,
+				joueursAvecMains = acc.joueursAvecMains :+ joueurAvecMain
+			)
 		}
 
-		Joueurs(joueursAvecMain.toSet)
+		val piocheRestante = pioche.zipWithIndex.filterNot { case (_, i) => result.cartesARetirer.exists { _ == i +1 } }.map { _._1 }
+
+		Joueurs(result.joueursAvecMains.toSet)
 			.map { js => PartieDeUno(js, SensDeLaPartie.SensHoraire, piocheRestante, Nil) }
 			.mapLeft { _ => IlFaut3JoueursMinimum }
 	}
@@ -77,6 +83,3 @@ object JeuDeUno {
 	 * On rajoute des évènements (pour informer les joueurs, tel joueur prend 2 cartes, la couleur a changé, ...)
 	 */
 }
-
-enum PartieDeUnoErreur:
-	case IlFaut3JoueursMinimum
