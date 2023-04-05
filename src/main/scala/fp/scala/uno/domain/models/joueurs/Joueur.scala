@@ -18,7 +18,7 @@ case class Joueur(uid: SafeUUID,
 type Joueurs = Joueurs.JoueursImpl
 
 object Joueurs:
-	private[joueurs] case class JoueursImpl(joueurs: Set[Joueur])
+	private[joueurs] case class JoueursImpl(private[Joueurs] joueurs: Set[Joueur])
 
 	def apply(rawJoueurs: Set[Joueur]): Either[String, Joueurs] =
 		if(rawJoueurs.size >= 3) JoueursImpl(rawJoueurs).right
@@ -26,4 +26,7 @@ object Joueurs:
 		
 	extension (js: Joueurs)
 		def toSet: Set[Joueur] = js.joueurs
-		def foreach[B](f: Joueur => Joueur): Joueurs = JoueursImpl(js.joueurs.map { f })
+		def foreach(f: Joueur => Joueur): Joueurs = JoueursImpl(js.joueurs.map { f })
+		def updateIf(predicate: Joueur => Boolean)(f: Joueur => Joueur): Joueurs =
+			val updatedJoueurs = js.joueurs.map { j => if(predicate(j)) f(j) else j }
+			JoueursImpl(updatedJoueurs)

@@ -15,5 +15,12 @@ utilisant pour cela une implémentation du célèbre jeu Uno.
 - la programmation concurrente / parallèle
 - les Stream
 
+### Les règles du Uno
+
+https://www.regledujeu.fr/uno/
+
 ### Progression
 
+la progression du développement du jeu; en fonction des concepts illutrés; est faite via les branches git préfixées avec le label `step`
+
+La branche `rawDev` représente le jeu coder "complètement" (avec tous les concepts d'un coup)

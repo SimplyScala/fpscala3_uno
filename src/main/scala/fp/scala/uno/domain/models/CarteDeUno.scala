@@ -5,7 +5,7 @@ import fp.scala.utils.typeclass.ord.Ord
 import fp.scala.utils.typeclass.show.Show
 
 enum CarteDeUno:
-	case CarteNumeric(valeur: ValeurNumeriqueDeCarte, couleur: CouleurDeCarte)
+	case CarteNumerique(valeur: ValeurNumeriqueDeCarte, couleur: CouleurDeCarte)
 	case Joker(jokerType: JokerType, couleur: CouleurDeCarte)
 	case Plus4Cartes
 	case ChangementDeCouleur

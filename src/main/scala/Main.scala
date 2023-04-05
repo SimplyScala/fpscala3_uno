@@ -18,12 +18,12 @@ object Main extends ZIOAppDefault:
 		for {
 			_   <- printLine("FP Uno !")
 			_   <- printLine(game)
-			_   <- printLine(CarteDeUno.CarteNumeric(ZERO, Bleu) === CarteDeUno.CarteNumeric(ZERO, Bleu))
+			_   <- printLine(CarteDeUno.CarteNumerique(ZERO, Bleu) === CarteDeUno.CarteNumerique(ZERO, Bleu))
 			_   <- printLine(ZERO < UN)
 			/*name <- readLine
 			_    <- printLine(s"Hello, ${name}, welcome to ZIO!")*/
 		} yield ()
 
 	private def game: String = {
-		CarteDeUno.CarteNumeric(ZERO, Bleu).show
+		CarteDeUno.CarteNumerique(ZERO, Bleu).show
 	}

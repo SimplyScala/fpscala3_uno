@@ -8,14 +8,17 @@ import fp.scala.utils.typeclass.show.Show
 
 import scala.deriving.*
 
-/**
- * Une partie de Uno:
- */
-case class PartieDeUno(//uid: SafeUUID,
-                       joueurs: Joueurs,
-                       sensDeLaPartie: SensDeLaPartie,
-                       pioche: Seq[CarteDeUno],
-                       talon: Seq[CarteDeUno])
+enum PartieDeUno:
+	case PartieAPreparer extends PartieDeUno
+	
+	/**
+	 * Une partie de Uno:
+	 */
+	case PartiePrete(//uid: SafeUUID,
+	                 joueurs: Joueurs,
+	                 sensDeLaPartie: SensDeLaPartie,
+	                 pioche: Seq[CarteDeUno],
+	                 talon: Seq[CarteDeUno]) extends PartieDeUno
 
 enum SensDeLaPartie:
 	case SensHoraire
