@@ -33,9 +33,29 @@ class PartieDeUnoTest extends EventsourcingTestingFramework[UnoEvent, UnoCommand
 		}
 	}
 
-	describe("Jouer une partie") {
+	describe("Jouer une partie - coups normaux") {
 		it("Un Joueur joue une carte numérique") {
 			Given(LaPartieEstPreteAJouer, LaPartieADemare) |> When(JouerUneCarte) |> Then(UneCarteAEteJouee)
 		}
+
+		it("Un Joueur joue une autre carte numérique") {
+			Given(LaPartieEstPreteAJouer, LaPartieADemare, UneCarteAEteJouee) |>
+			When(JouerUneAutreCarte) |> 
+			Then()
+		}
+
+		it("Un Joueur pioche une carte") {
+			Given(LaPartieEstPreteAJouer, LaPartieADemare) |> When(PiocherUneCarte) |> Then(UneCarteAEtePiochee)
+		}
+	}
+
+	describe("Jouer une partie - jouer de manière erronée") {
+		it("Un Joueur joue la mauvaise carte") {
+			Given(LaPartieEstPreteAJouer, LaPartieADemare) |> When(JouerUneMauvaiseCarte) |> Then(UneMauvaiseCarteAEteJouee)
+		}
+
+		/*it("Un Joueur ne joue pas à son tour") {
+
+		}*/
 	}
 }

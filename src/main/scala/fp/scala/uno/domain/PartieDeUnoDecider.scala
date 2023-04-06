@@ -6,11 +6,14 @@ import fp.scala.uno.domain.events.UnoEvent
 import fp.scala.uno.domain.events.UnoEvent.*
 import fp.scala.uno.domain.UnoErreur
 import fp.scala.uno.domain.UnoErreur.*
-import fp.scala.uno.domain.models.PartieDeUno
+import fp.scala.uno.domain.models.{CarteDeUno, PartieDeUno}
 import fp.scala.uno.domain.models.PartieDeUno.*
+import fp.scala.uno.domain.models.CarteDeUno.*
 import fp.scala.uno.domain.models.joueurs.Joueurs
 import fp.scala.uno.domain.models.joueurs.Joueurs.*
 import fp.scala.utils.base.dsl.*
+import fp.scala.utils.models.nel.NEL
+import fp.scala.utils.typeclass.eq.Eq.*
 
 trait PartieDeUnoDecider {
 	def decide(commande: UnoCommand, state: PartieDeUno): Either[UnoErreur, Seq[UnoEvent]] = commande match {
@@ -22,16 +25,47 @@ trait PartieDeUnoDecider {
 		case DemarrerLaPartie(nbCartes) =>
 			state match {
 				case PartieAPreparer => ???
-				case PartiePrete(joueurs, sensDeLaPartie, pioche, talon) =>
+				case PartiePrete(joueurs, sensDeLaPartie, pioche) =>
 					(LaPartieADemarree(nbCartes) :: Nil).right
+				case _: PartieEnCours => ???
 			}
 
-		case JouerUneCarte(joueur, carteJouee) => state match {
-			case PartieAPreparer => ???
-			// TODO joue une carte qu'il n'a pas ANTI-TRICHE
-			case PartiePrete(joueurs, sensDeLaPartie, pioche, talon) =>
+		case JouerUneCarte(joueur, carteJouee) => partieEnCours(state, commande) { partieEncours =>
+			if(estCeLaBonneCarteAjouer(partieEncours.talon, carteJouee))
 				(UnJoueurAJoueUneCarte(joueur, carteJouee) :: Nil).right
+			else (UnJoueurAJoueUnMauvaiseCarte(joueur, carteJouee) :: Nil).right
 		}
+
+		case PiocherUneCarte(joueur) => partieEnCours(state, commande) { partieEncours =>
+			(UnJoueurAPiocheUneCarte(joueur) :: Nil).right
+		}
+	}
+
+	private def estCeLaBonneCarteAjouer(pioche: NEL[CarteDeUno], carteJouee: CarteDeUno): Boolean =
+		pioche.head match {
+			case CarteNumerique(valeur, couleur) => carteJouee match {
+				case CarteNumerique(v2, c2) => valeur === v2 || couleur == c2
+				case Joker(_, couleur) => ???
+				case Plus4Cartes => ???
+				case ChangementDeCouleur => ???
+			}
+			case Joker(type_, couleur) => ???
+			case Plus4Cartes => ???
+			case ChangementDeCouleur => ???
+		}
+
+	private def partiePreteAjouer(currentState: PartieDeUno, command: UnoCommand)
+	                             (ifPartiePreteAction: PartiePrete => Either[UnoErreur, Seq[UnoEvent]]): Either[UnoErreur, Seq[UnoEvent]] = currentState match {
+		case PartieAPreparer => ???
+		case p: PartiePrete   => ifPartiePreteAction(p)
+		case _: PartieEnCours => ???
+	}
+
+	private def partieEnCours(currentState: PartieDeUno, command: UnoCommand)
+	                         (ifPartieEnCoursAction: PartieEnCours => Either[UnoErreur, Seq[UnoEvent]]): Either[UnoErreur, Seq[UnoEvent]] = currentState match {
+		case PartieAPreparer => ???
+		case _: PartiePrete => ???
+		case p: PartieEnCours => ifPartieEnCoursAction(p)
 	}
 }
 
