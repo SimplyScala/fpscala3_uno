@@ -1,21 +1,23 @@
-package fp.scala.uno.domain
+package fp.scala.uno.domain.decider
 
+import fp.scala.uno.domain.UnoErreur
+import fp.scala.uno.domain.UnoErreur.*
 import fp.scala.uno.domain.commands.UnoCommand
 import fp.scala.uno.domain.commands.UnoCommand.*
 import fp.scala.uno.domain.events.UnoEvent
 import fp.scala.uno.domain.events.UnoEvent.*
-import fp.scala.uno.domain.UnoErreur
-import fp.scala.uno.domain.UnoErreur.*
-import fp.scala.uno.domain.models.{CarteDeUno, PartieDeUno}
-import fp.scala.uno.domain.models.PartieDeUno.*
 import fp.scala.uno.domain.models.CarteDeUno.*
+import fp.scala.uno.domain.models.PartieDeUno.*
 import fp.scala.uno.domain.models.joueurs.Joueurs
 import fp.scala.uno.domain.models.joueurs.Joueurs.*
+import fp.scala.uno.domain.models.{CarteDeUno, PartieDeUno}
 import fp.scala.utils.base.dsl.*
 import fp.scala.utils.models.nel.NEL
+import fp.scala.utils.models.safeuuid.SafeUUID
 import fp.scala.utils.typeclass.eq.Eq.*
+import fp.scala.utils.models.safeuuid.Typeclass.given_Eq_SafeUUID
 
-trait PartieDeUnoDecider {
+trait _PartieDeUnoDecider extends DemarrerUnePartie {
 	def decide(commande: UnoCommand, state: PartieDeUno): Either[UnoErreur, Seq[UnoEvent]] = commande match {
 		case PreparerUnePartie(joueurs, pioche) =>
 			Joueurs(joueurs.toSet)
@@ -26,25 +28,48 @@ trait PartieDeUnoDecider {
 			state match {
 				case PartieAPreparer => ???
 				case PartiePrete(joueurs, sensDeLaPartie, pioche) =>
-					(LaPartieADemarree(nbCartes) :: Nil).right
+					(LaPartieADemarree(nbCartes) :: distribuerLesCartesAuxJoueurs(joueurs, pioche, nbCartes)).right
 				case _: PartieEnCours => ???
 			}
 
 		case JouerUneCarte(joueur, carteJouee) => partieEnCours(state, commande) { partieEncours =>
-			if(estCeLaBonneCarteAjouer(partieEncours.talon, carteJouee))
-				(UnJoueurAJoueUneCarte(joueur, carteJouee) :: Nil).right
-			else (UnJoueurAJoueUnMauvaiseCarte(joueur, carteJouee) :: Nil).right
+			val result = for {
+				_ <- estCeAMonTourDeJouer(joueur, partieEncours)
+				_ <- estCeLaBonneCarteAjouer(joueur, partieEncours.talon, carteJouee)
+			} yield ()
+			
+			result.inverse.getOrElse(UnJoueurAJoueUneCarte(joueur, carteJouee) :: Nil).right
 		}
 
 		case PiocherUneCarte(joueur) => partieEnCours(state, commande) { partieEncours =>
-			(UnJoueurAPiocheUneCarte(joueur) :: Nil).right
+			(UnJoueurAPiocheUneCarte(joueur, partieEncours.pioche.head) :: Nil).right
 		}
 	}
 
-	private def estCeLaBonneCarteAjouer(pioche: NEL[CarteDeUno], carteJouee: CarteDeUno): Boolean =
+	private def estCeAMonTourDeJouer(joueur: SafeUUID, partie: PartieEnCours): Either[Seq[UnoEvent], Unit] =
+		(for {
+			dernierJoueur <- partie.joueurs.find { _.uid.some === partie.dernierJoueur }
+			joueurTesté <- partie.joueurs.find { _.uid === joueur }
+		} yield { // TODO check sens de la partie
+			if(joueurTesté.placement == dernierJoueur.placement +1) ().right
+			else (UnJoueurNaPasJoueASonTour(joueur) :: Nil).left
+		})
+		.getOrElse {
+			val bonplacement = partie.joueurs
+				.find { _.uid === joueur }
+				.exists { _.placement == 1 }
+
+			if(bonplacement) ().right else (UnJoueurNaPasJoueASonTour(joueur) :: Nil).left
+		}
+
+	private def estCeLaBonneCarteAjouer(joueur: SafeUUID,
+	                                    pioche: NEL[CarteDeUno],
+	                                    carteJouee: CarteDeUno): Either[Seq[UnoEvent], Unit] =
 		pioche.head match {
 			case CarteNumerique(valeur, couleur) => carteJouee match {
-				case CarteNumerique(v2, c2) => valeur === v2 || couleur == c2
+				case CarteNumerique(v2, c2) =>
+					if(valeur === v2 || couleur == c2) ().right
+					else (UnJoueurAJoueUneMauvaiseCarte(joueur, carteJouee) :: Nil).left
 				case Joker(_, couleur) => ???
 				case Plus4Cartes => ???
 				case ChangementDeCouleur => ???

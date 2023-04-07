@@ -29,33 +29,43 @@ class PartieDeUnoTest extends EventsourcingTestingFramework[UnoEvent, UnoCommand
 
 	describe("Démarrer une partie") {
 		it("Démarrer la partie OK") {
-			Given(LaPartieEstPreteAJouer) |> When(DemarrerLaPartie) |> Then(LaPartieADemare)
+			Given(LaPartieEstPreteAJouer) |>
+			When(DemarrerLaPartie) |>
+			Then(LaPartieADemare :: CartesDistribuees)
 		}
 	}
 
 	describe("Jouer une partie - coups normaux") {
 		it("Un Joueur joue une carte numérique") {
-			Given(LaPartieEstPreteAJouer, LaPartieADemare) |> When(JouerUneCarte) |> Then(UneCarteAEteJouee)
+			Given(LaPartieEstPreteAJouer :: LaPartieADemare :: CartesDistribuees) |>
+			When(JouerUneCarte) |>
+			Then(UneCarteAEteJouee)
 		}
 
 		it("Un Joueur joue une autre carte numérique") {
-			Given(LaPartieEstPreteAJouer, LaPartieADemare, UneCarteAEteJouee) |>
+			Given((LaPartieEstPreteAJouer :: LaPartieADemare :: CartesDistribuees) :+ UneCarteAEteJouee) |>
 			When(JouerUneAutreCarte) |> 
-			Then()
+			Then(UneAutreCarteAEteJouee)
 		}
 
 		it("Un Joueur pioche une carte") {
-			Given(LaPartieEstPreteAJouer, LaPartieADemare) |> When(PiocherUneCarte) |> Then(UneCarteAEtePiochee)
+			Given(LaPartieEstPreteAJouer :: LaPartieADemare :: CartesDistribuees) |>
+			When(PiocherUneCarte) |>
+			Then(UneCarteAEtePiochee)
 		}
 	}
 
 	describe("Jouer une partie - jouer de manière erronée") {
 		it("Un Joueur joue la mauvaise carte") {
-			Given(LaPartieEstPreteAJouer, LaPartieADemare) |> When(JouerUneMauvaiseCarte) |> Then(UneMauvaiseCarteAEteJouee)
+			Given(LaPartieEstPreteAJouer :: LaPartieADemare :: CartesDistribuees) |>
+			When(JouerUneMauvaiseCarte) |>
+			Then(UneMauvaiseCarteAEteJouee)
 		}
 
-		/*it("Un Joueur ne joue pas à son tour") {
-
-		}*/
+		it("Un Joueur ne joue pas à son tour") {
+			Given(LaPartieEstPreteAJouer :: LaPartieADemare :: CartesDistribuees) |>
+			When(JouerUneCartePasASonTour) |>
+			Then(NaPasJouerASonTour)
+		}
 	}
 }

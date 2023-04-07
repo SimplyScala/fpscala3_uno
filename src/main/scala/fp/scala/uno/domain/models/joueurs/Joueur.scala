@@ -30,3 +30,5 @@ object Joueurs:
 		def updateIf(predicate: Joueur => Boolean)(f: Joueur => Joueur): Joueurs =
 			val updatedJoueurs = js.joueurs.map { j => if(predicate(j)) f(j) else j }
 			JoueursImpl(updatedJoueurs)
+		def size: Int = js.joueurs.size
+		def find(predicate: Joueur => Boolean): Option[Joueur] = js.joueurs.find(predicate)

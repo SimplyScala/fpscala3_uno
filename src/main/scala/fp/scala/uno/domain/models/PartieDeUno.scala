@@ -22,6 +22,7 @@ enum PartieDeUno:
 	
 	case PartieEnCours(joueurs: Joueurs,
 	                   sensDeLaPartie: SensDeLaPartie,
+	                   dernierJoueur: Option[SafeUUID],
 	                   pioche: Seq[CarteDeUno], 
 	                   talon: NEL[CarteDeUno]) extends PartieDeUno
 
