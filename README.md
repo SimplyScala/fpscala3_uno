@@ -24,3 +24,15 @@ https://www.regledujeu.fr/uno/
 la progression du développement du jeu; en fonction des concepts illutrés; est faite via les branches git préfixées avec le label `step`
 
 La branche `rawDev` représente le jeu coder "complètement" (avec tous les concepts d'un coup)
+
+## Server
+
+### Lancer le serveur
+
+> sbt
+ 
+> sbt:fpScala3_Uno> ~reStart
+ 
+> 1
+
+> http://localhost:2000/api/v1
