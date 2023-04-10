@@ -12,19 +12,16 @@ import zio.json.JsonCodec
 import zio.{IO, ZIO, ZLayer}
 import zio.prelude.AnySyntax
 
-trait EventRepository:
-	def getEventStream[E](eventStreamId: EventStreamId)
-	                     (implicit d: JsonCodec[E]): IO[DbError, Seq[RepositoryEvent[E]]]
+abstract class EventRepository[E: JsonCodec]:
+	def getEventStream(eventStreamId: EventStreamId): IO[DbError, Seq[RepositoryEvent[E]]]
 
-	def saveEvents[E](eventStreamId: EventStreamId, events: Seq[RepositoryEvent[E]])
-	                 (implicit d: JsonCodec[E]): IO[DbError, Int]
+	def saveEvents(eventStreamId: EventStreamId, events: Seq[RepositoryEvent[E]]): IO[DbError, Int]
 
 object EventRepository:
-	val live: ZLayer[ZTransactor, Nothing, EventRepository] =
+	def live[E: Tag: JsonCodec]: ZLayer[ZTransactor, Nothing, EventRepository[E]] =
 		ZIO.service[ZTransactor].map { cnx =>
-			new EventRepository:
-				override def getEventStream[E](eventStreamId: EventStreamId)
-				                              (implicit decoder: JsonCodec[E]): IO[DbError, Seq[RepositoryEvent[E]]] = ???
+			new EventRepository[E]:
+				override def getEventStream(eventStreamId: EventStreamId): IO[DbError, Seq[RepositoryEvent[E]]] = ???
 					/*Req.list(eventStreamId, "uno")
 						.query[String]
 						.to[Seq]
@@ -39,8 +36,7 @@ object EventRepository:
 							} |> ZIO.collectAll
 						}*/
 
-				override def saveEvents[E](eventStreamId: EventStreamId, events: Seq[RepositoryEvent[E]])
-				                          (implicit encoder: JsonCodec[E]): IO[DbError, Int] = ???
+				override def saveEvents(eventStreamId: EventStreamId, events: Seq[RepositoryEvent[E]]): IO[DbError, Int] = ???
 					/*Update[String]("insert into events (valuez) values (?::jsonb)")
 						.updateMany(events.toJson)
 						.transact(cnx)

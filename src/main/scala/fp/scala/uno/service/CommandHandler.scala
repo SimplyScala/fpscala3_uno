@@ -16,17 +16,17 @@ import zio.prelude.AnySyntax
 
 
 trait UnoCommandHandler:
-	def commandHandler(processUid: ProcessUid,
+	def processCommand(processUid: ProcessUid,
 	                   aggregateUid: AggregateUid,
 	                   commande: UnoCommand): IO[CommandHandlerError, Seq[RepositoryEvent[UnoEvent]]]
 
 object UnoCommandHandler extends ApplyTo:
-	val live: ZLayer[EventRepository, Nothing, UnoCommandHandler] =
-		ZIO.service[EventRepository].map { evtRepo =>
+	val live: ZLayer[EventRepository[UnoEvent], Nothing, UnoCommandHandler] =
+		ZIO.service[EventRepository[UnoEvent]].map { evtRepo =>
 			new UnoCommandHandler:
 				import UnoEventJsonCodec.UnoEventJsonCodec
 
-				override def commandHandler(processUid: ProcessUid,
+				override def processCommand(processUid: ProcessUid,
 				                            aggregateUid: AggregateUid,
 				                            commande: UnoCommand): IO[CommandHandlerError, Seq[RepositoryEvent[UnoEvent]]] = {
 					val evtStreamId = EventStreamId(aggregateUid, AggregateName("uno"))

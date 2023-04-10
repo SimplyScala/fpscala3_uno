@@ -34,8 +34,8 @@ object UnoAPI {
 				joueurs <- getJoueurs(req.joueurs)
 				unoCommand = UnoCommand.PreparerUnePartie(joueurs, ListeDesCartes.pioche)
 				ch <- ZIO.service[UnoCommandHandler]
-				events <- ch.commandHandler(processUid, aggregateUid, unoCommand)
-					.mapError { UnoAPIError.toEndpointsError(_) }
+				events <- ch.processCommand(processUid, aggregateUid, unoCommand)
+							.mapError { UnoAPIError.toEndpointsError(_) }
 			yield CRUDResult(aggregateUid.safeUUID)
 
 			// TODO pousser les events dans une queue pour transmettre aux joueurs
