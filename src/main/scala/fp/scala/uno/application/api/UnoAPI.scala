@@ -18,8 +18,6 @@ import zio.prelude.AnySyntax
 object UnoAPI {
 	//type UnoAPIDeps = UnoCommandHandler
 
-	val endpoints: List[ZServerEndpoint[AppLayer, Any]] = preparerUnePartie :: Nil
-
 	/*
 	{ "processUid": "98064f99-fc82-4634-86e3-28d048be3754"
 	, "joueurs": ["98064f99-fc82-4634-86e3-28d048be3753", "98064f99-fc82-4634-86e3-28d048be3752", "98064f99-fc82-4634-86e3-28d048be3759"]
@@ -47,4 +45,6 @@ object UnoAPI {
 			.map { case (j, i) => Joueur(j, s"Joueur ${i +1}", i +1, Nil) }
 
 		ZIO.succeed(joueurs)
+
+	val endpoints: List[ZServerEndpoint[AppLayer, Any]] = preparerUnePartie :: Nil
 }

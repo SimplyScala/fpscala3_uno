@@ -8,7 +8,7 @@ import fp.scala.uno.domain.events.UnoEvent
 import fp.scala.uno.service.UnoEventJsonCodec.UnoEventJsonCodec
 import zio.*
 
-type AppLayer = AppConfig.ConfigLayer & UnoCommandHandler/*& UserRepository & JdbcConnection.ZTransactor*/
+type AppLayer = AppConfig.ConfigLayer & UnoCommandHandler & JdbcConnection.ZTransactor/*& UserRepository & JdbcConnection.ZTransactor*/
 
 object AppLayer:
 	lazy val live: ZLayer[Scope, Any, AppLayer] =
