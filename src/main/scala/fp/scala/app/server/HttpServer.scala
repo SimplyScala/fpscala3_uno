@@ -1,7 +1,7 @@
 package fp.scala.app.server
 
 import fp.scala.app.ServerConfig
-import fp.scala.app.api.{DomainAPIs, Paths, RootAPI}
+import fp.scala.app.api.{APIRoutes, Paths, RootAPI}
 import sttp.capabilities.zio.ZioStreams
 import sttp.tapir.server.ziohttp.ZioHttpInterpreter
 import sttp.tapir.ztapir.*
@@ -15,7 +15,7 @@ import fp.scala.app.AppLayer
 object HttpServer:
 	val serverSetup: ZIO[ServerConfig, Nothing, Server[AppLayer, Throwable]] =
 		val apiRoutes: Http[AppLayer, Throwable, Request, Response] =
-			ZioHttpInterpreter().toHttp(RootAPI.rootAPI :: DomainAPIs.APIs/*:: (ParcoursEtudiantAPI.endpoints ++ PlansAPI.endpoints)*/)
+			ZioHttpInterpreter().toHttp(RootAPI.rootAPI :: APIRoutes.APIs/*:: (ParcoursEtudiantAPI.endpoints ++ PlansAPI.endpoints)*/)
 
 		val corsConfig: CorsConfig = CorsConfig()
 
