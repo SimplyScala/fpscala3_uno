@@ -1,7 +1,7 @@
 package fp.scala.app.server
 
 import fp.scala.app.ServerConfig
-import fp.scala.app.api.{Paths, RootAPI}
+import fp.scala.app.api.{DomainAPIs, Paths, RootAPI}
 import sttp.capabilities.zio.ZioStreams
 import sttp.tapir.server.ziohttp.ZioHttpInterpreter
 import sttp.tapir.ztapir.*
@@ -15,13 +15,13 @@ import fp.scala.app.AppLayer
 object HttpServer:
 	val serverSetup: ZIO[ServerConfig, Nothing, Server[AppLayer, Throwable]] =
 		val apiRoutes: Http[AppLayer, Throwable, Request, Response] =
-			ZioHttpInterpreter().toHttp(RootAPI.rootHttp /*:: (ParcoursEtudiantAPI.endpoints ++ PlansAPI.endpoints)*/)
+			ZioHttpInterpreter().toHttp(RootAPI.rootAPI :: DomainAPIs.APIs/*:: (ParcoursEtudiantAPI.endpoints ++ PlansAPI.endpoints)*/)
 
 		val corsConfig: CorsConfig = CorsConfig()
 
 		for
 			serverConfig <- ZIO.service[ServerConfig]
-			_ <- ZIO.logInfo(s"Starting iesm-back on port ${serverConfig.port}")
+			_ <- ZIO.logInfo(s"Starting fp-uno on port ${serverConfig.port}")
 		yield Server.port(serverConfig.port) ++ Server.app(
 			(httpPrefix(Paths.prefix) >>> apiRoutes) @@ Middleware.cors(corsConfig)
 		)

@@ -5,8 +5,7 @@ import zhttp.http.*
 object Paths:
 	private val API = "api"
 	private val V1 = "v1"
-	val PARCOURS = "parcours"
-	val PLANS = "plans"
+	val UNO_GAME = "unogame"
 
 	def prefix(proto: Option[XForwardedProtoHeader], host: HostHeader): String = s"${proto.getOrElse("http")}://$host/$API/$V1/"
 

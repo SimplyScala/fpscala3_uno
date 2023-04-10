@@ -1,8 +1,9 @@
 package fp.scala.uno.domain.models
 
-import ValeurNumeriqueDeCarte._
-import CouleurDeCarte._
-import JokerType._
+import ValeurNumeriqueDeCarte.*
+import CouleurDeCarte.*
+import JokerType.*
+import fp.scala.utils.models.nel.{NEL, nel}
 
 object ListeDesCartes:
 	/**
@@ -13,7 +14,7 @@ object ListeDesCartes:
 	 * 4 Joker
 	 * 4 Super Joker
 	 */
-	val pioche: Seq[CarteDeUno] = Seq(
+	val pioche: NEL[CarteDeUno] = nel(
 		CarteJaune._0, CarteBleu._0, CarteRouge._0, CarteVerte._0,
 		CarteJaune._1, CarteJaune._1,CarteBleu._1, CarteBleu._1,CarteRouge._1, CarteRouge._1,CarteVerte._1, CarteVerte._1,
 		CarteJaune._2, CarteJaune._2,CarteBleu._2, CarteBleu._2,CarteRouge._2, CarteRouge._2,CarteVerte._2, CarteVerte._2,

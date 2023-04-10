@@ -1,12 +1,15 @@
 package fp.scala.app
 
 import doobie.util.transactor.Transactor
+import fp.scala.app.infrastructure.JdbcConnection
+import fp.scala.uno.repository.EventRepository
+import fp.scala.uno.service.UnoCommandHandler
 import zio.*
 
-type AppLayer = AppConfig.ConfigLayer /*& UserRepository & JdbcConnection.ZTransactor*/
+type AppLayer = AppConfig.ConfigLayer & UnoCommandHandler/*& UserRepository & JdbcConnection.ZTransactor*/
 
 object AppLayer:
 	lazy val live: ZLayer[Scope, Any, AppLayer] =
-		//val cnxLayer: ZLayer[Scope, Any, Transactor[Task]] = AppConfig.live >>> JdbcConnection.live
+		val cnxLayer: ZLayer[Scope, Any, Transactor[Task]] = AppConfig.live >>> JdbcConnection.live
 
-		AppConfig.live //++ cnxLayer ++ (cnxLayer >>> UserRepository.live)
+		AppConfig.live ++ cnxLayer ++ (cnxLayer >>> EventRepository.live >>> UnoCommandHandler.live)

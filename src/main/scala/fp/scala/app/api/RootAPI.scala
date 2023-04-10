@@ -13,7 +13,7 @@ import zhttp.service.Server
 import zio.*
 import zio.prelude.*
 import fp.scala.app.{AppLayer, ServerConfig}
-import fp.scala.utils.models.http.RestNavigationLink
+import fp.scala.utils.models.http.{HttpVerb, RestNavigationLink}
 import fp.scala.utils.models.http.bindings.ziojson.RestNavigationLinkJsonCodec.restNavigationLinkJsonCodec
 //import pi.app.api.authentification.SecuredEndpoint
 //import pi.app.api.authentification.models.{User, *}
@@ -23,7 +23,7 @@ import fp.scala.app.api.{HostHeader, XForwardedProtoHeader}
 //import pi.prelude.http.bindings.ziojson.RestNavigationLinkJsonCodec.*
 //import pi.prelude.http.{HttpVerb, RestNavigationLink}
 //import HttpVerb.*
-import fp.scala.utils.models.http.HttpVerb.GET
+import fp.scala.utils.models.http.HttpVerb.*
 import sttp.tapir.ztapir.*
 import sttp.capabilities.zio.*
 import sttp.tapir.generic.auto.*
@@ -53,7 +53,7 @@ object RootAPI /*extends SecuredEndpoint*/:
             .in(header[HostHeader](HeaderNames.Host))
 	*/
 
-	def rootHttp: ZServerEndpoint[AppLayer, Any] =
+	def rootAPI: ZServerEndpoint[AppLayer, Any] =
 		endpoint.get
 			.in(header[Option[XForwardedProtoHeader]](HeaderNames.XForwardedProto))
 			.in(header[HostHeader](HeaderNames.Host))
@@ -62,7 +62,10 @@ object RootAPI /*extends SecuredEndpoint*/:
 			.serverLogic {
 				/*(user: Option[User]) => */ (proto: Option[XForwardedProtoHeader], host: HostHeader) =>
 				import zio.json.*
-				val rootEndpoint = RestNavigationLink("self", Paths.prefix(proto, host), GET) :: Nil
+				val rootEndpoint = 
+					RestNavigationLink("self", Paths.prefix(proto, host), GET) ::
+					RestNavigationLink("unogame", s"${Paths.prefix(proto, host)}${Paths.UNO_GAME}", POST) ::
+					Nil
 				/*val securedEndpoints = user
 					.map { securedEntries(proto, host) }
 					.getOrElse(Nil)*/
