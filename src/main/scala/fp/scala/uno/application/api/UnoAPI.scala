@@ -20,6 +20,11 @@ object UnoAPI {
 
 	val endpoints: List[ZServerEndpoint[AppLayer, Any]] = preparerUnePartie :: Nil
 
+	/*
+	{ "processUid": "98064f99-fc82-4634-86e3-28d048be3754"
+	, "joueurs": ["98064f99-fc82-4634-86e3-28d048be3753", "98064f99-fc82-4634-86e3-28d048be3752", "98064f99-fc82-4634-86e3-28d048be3759"]
+	}
+	*/
 	val preparerUnePartie: ZServerEndpoint[AppLayer, Any]/*: Endpoint[Unit, PreparerUnePartie, Unit, CRUDResult, Any] =*/ =
 		UnoEndPoints.preparerUnePartieEP.zServerLogic { (req: PreparerUnePartie) =>
 			val aggregateUid = AggregateUid.generate
