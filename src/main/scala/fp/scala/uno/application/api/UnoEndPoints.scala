@@ -2,11 +2,13 @@ package fp.scala.uno.application.api
 
 import fp.scala.app.api.EndpointsError
 import fp.scala.app.bindings.tapir.TapirCodec.*
-import fp.scala.uno.application.api.models.PreparerUnePartie
-import fp.scala.uno.application.api.models.PreparerUnePartieJsonBindings.PreparerUnePartieJsonCodec
+import fp.scala.uno.application.api.models.{JouerUnePartieAPICmd, PreparerUnePartieAPICmd}
+import fp.scala.uno.application.api.models.PreparerUnePartieJsonBindings.{JouerUnePartieAPICommandJsonCodec, PreparerUnePartieJsonCodec}
 import fp.scala.app.bindings.json.ApiResultsJsonCodec.CRUDResultJsonCodec
 import fp.scala.app.models.ApiResults.CRUDResult
+import fp.scala.utils.models.safeuuid.SafeUUID
 import sttp.capabilities.zio.ZioStreams
+import sttp.model.StatusCode
 import sttp.model.sse.ServerSentEvent
 import sttp.monad.syntax.MonadErrorOps
 import sttp.tapir.generic.auto.*
@@ -19,22 +21,19 @@ import java.nio.charset.StandardCharsets
 
 object UnoEndPoints {
 
-	val preparerUnePartieEP: Endpoint[Unit, PreparerUnePartie, EndpointsError, CRUDResult, Any] =
+	val preparerUnePartieEP: Endpoint[Unit, PreparerUnePartieAPICmd, EndpointsError, CRUDResult, Any] =
 		endpoint.post
 			.in("unogame")
-			.in(jsonBody[PreparerUnePartie])
+			.in(jsonBody[PreparerUnePartieAPICmd])
 			.errorOut(EndpointsError.handleOutError)
-			.out(jsonBody[CRUDResult])
-			
+			.out(jsonBody[CRUDResult].and(statusCode(StatusCode.Created)))
 
-		/*
-		val referentielModuleCommands
-        : AppSecuredEndpoint[RequestReferentielModuleCommand, List[ReferentielModuleDomainEvent]] =
-        securedEndpoint.patch
-            .in(Aggregate.ModuleEnseignement.toString)
-            .in(jsonBody[ReferentielModulesJsonCommand])
-            .mapInTo[RequestReferentielModuleCommand]
-            .out(jsonBody[List[ReferentielModuleDomainEvent]])*/
+	val jouerUnePartieEP: Endpoint[Unit, (SafeUUID, JouerUnePartieAPICmd), EndpointsError, Unit, Any] =
+		endpoint.patch
+			.in("unogame" / path[SafeUUID]("uid"))
+			.in(jsonBody[JouerUnePartieAPICmd])
+			.errorOut(EndpointsError.handleOutError)
+			.out(emptyOutput.and(statusCode(StatusCode.Ok)))
 
 	/*val streamEvents =
 		endpoint.get

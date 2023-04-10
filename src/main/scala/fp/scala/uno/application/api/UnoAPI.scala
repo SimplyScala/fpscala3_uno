@@ -1,7 +1,8 @@
 package fp.scala.uno.application.api
 
-import fp.scala.uno.application.api.models.PreparerUnePartie
-import fp.scala.uno.repository.models.events.{AggregateUid, ProcessUid, RepositoryEvent}
+import fp.scala.uno.application.api.models.{PreparerUnePartieAPICmd, JouerUnePartieAPICmd}
+import JouerUnePartieAPICmd.*
+import fp.scala.uno.repository.models.events.{AggregateUid, ProcessUid}
 import fp.scala.uno.service.UnoCommandHandler
 import sttp.tapir.ztapir.ZServerEndpoint
 import sttp.tapir.ztapir.RichZEndpoint
@@ -11,8 +12,6 @@ import fp.scala.uno.domain.models.joueurs.Joueur
 import fp.scala.app.models.ApiResults.CRUDResult
 import fp.scala.utils.models.safeuuid.SafeUUID
 import fp.scala.app.AppLayer
-import fp.scala.app.api.EndpointsError
-import fp.scala.uno.domain.events.UnoEvent
 import zio.{IO, ZIO}
 import zio.prelude.AnySyntax
 
@@ -28,7 +27,7 @@ object UnoAPI {
 	}
 	*/
 	val preparerUnePartie: ZServerEndpoint[UnoAPIDeps, Any]/*: Endpoint[Unit, PreparerUnePartie, Unit, CRUDResult, Any] =*/ =
-		UnoEndPoints.preparerUnePartieEP.zServerLogic { (req: PreparerUnePartie) =>
+		UnoEndPoints.preparerUnePartieEP.zServerLogic { (req: PreparerUnePartieAPICmd) =>
 			val aggregateUid = AggregateUid.generate
 			val processUid = ProcessUid(req.processUid)
 
@@ -54,11 +53,21 @@ object UnoAPI {
 				joueurs <- getJoueurs(req.joueurs)
 				unoCommand = UnoCommand.PreparerUnePartie(joueurs, ListeDesCartes.pioche)
 				ch <- ZIO.service[UnoCommandHandler]
-				events <- ch.processCommand(processUid, aggregateUid, unoCommand)
-							.mapError { UnoAPIError.toEndpointsError(_) }
+				events <- ch.processCommand(processUid, aggregateUid, unoCommand).mapError { UnoAPIError.toEndpointsError(_) }
 			yield CRUDResult(aggregateUid.safeUUID)
 
 			// TODO pousser les events dans une queue pour transmettre aux joueurs
+		}
+
+	val jouerUnePartie: ZServerEndpoint[UnoAPIDeps, Any] =
+		UnoEndPoints.jouerUnePartieEP.zServerLogic { (aUid: SafeUUID, req: JouerUnePartieAPICmd) =>
+			val (processUid, command) = req.toDomain//.map { case (p, c) => (ProcessUid(p), c) }
+			val aggregateUid = AggregateUid(aUid)
+
+			for
+				ch <- ZIO.service[UnoCommandHandler]
+				events <- ch.processCommand(ProcessUid(processUid), aggregateUid, command).mapError { UnoAPIError.toEndpointsError(_) }
+			yield ()
 		}
 
 	private def getJoueurs(js: Seq[SafeUUID]): IO[Nothing, Seq[Joueur]] =

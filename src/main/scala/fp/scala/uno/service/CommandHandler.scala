@@ -14,6 +14,8 @@ import zio.{IO, ZIO, ZLayer}
 import CommandHandlerError.*
 import zio.prelude.AnySyntax
 
+import java.time.OffsetDateTime
+
 
 trait UnoCommandHandler:
 	def processCommand(processUid: ProcessUid,
@@ -44,4 +46,4 @@ object UnoCommandHandler extends ApplyTo:
 	private def repoEvtBuilder(processUid: ProcessUid,
 	                           aggregateUid: AggregateUid,
 	                           aggName: AggregateName)(evt: UnoEvent) =
-		RepositoryEvent(processUid, aggregateUid, aggName, evt)
+		RepositoryEvent(processUid, aggregateUid, aggName, OffsetDateTime.now(), evt)

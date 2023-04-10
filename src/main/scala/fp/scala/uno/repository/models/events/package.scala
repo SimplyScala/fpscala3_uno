@@ -9,6 +9,8 @@ package object events:
 	opaque type ProcessUid <: SafeUUID = SafeUUID
 	object ProcessUid:
 		def apply(safeUUID: SafeUUID): ProcessUid = safeUUID
+		extension (x: ProcessUid)
+			def safeUUID: SafeUUID = x
 
 	opaque type AggregateUid <: SafeUUID = SafeUUID
 	object AggregateUid:
@@ -20,6 +22,8 @@ package object events:
 	opaque type AggregateName <: String = String
 	object AggregateName:
 		def apply(name: String): AggregateName = name
+		extension (x: AggregateName)
+			def value: String = x
 
 	case class EventStreamId(id: AggregateUid, aggregateName: AggregateName)
 

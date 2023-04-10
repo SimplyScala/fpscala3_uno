@@ -8,7 +8,7 @@ import java.time.OffsetDateTime
 case class RepositoryEvent[E](processUid: ProcessUid,
                               aggregateUid: AggregateUid,
                               aggregateName: AggregateName,
-                              //sentDate: OffsetDateTime,
+                              sentDate: OffsetDateTime,
                               //doneBy: DoneBy,
                               event: E)
 
