@@ -19,6 +19,17 @@ object HttpServer:
 
 		val corsConfig: CorsConfig = CorsConfig()
 
+    
+    /*
+    defer {
+      val serverConfig: ServerConfig = ZIO.service[ServerConfig].run
+
+      ZIO.logInfo(s"Setup fp-uno on port ${serverConfig.port}").run
+
+      Server.app((httpPrefix(Paths.prefix) >>> apiRoutes) @@ Middleware.cors(corsConfig)).withPort(serverConfig.port)
+    }
+    */
+    
 		for
 			serverConfig <- ZIO.service[ServerConfig]
 			_ <- ZIO.logInfo(s"Starting fp-uno on port ${serverConfig.port}")

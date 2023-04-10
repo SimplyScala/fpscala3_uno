@@ -51,6 +51,8 @@ lazy val uno = project
 		libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.14" % Test,
 		libraryDependencies += "org.scalatest" %% "scalatest-funspec" % "3.2.14" % Test,
 
+		libraryDependencies += "dev.zio" %% "zio-direct" % "1.0.0-RC7",
+
 	)
 
 	enablePlugins(JavaAppPackaging)

@@ -1,7 +1,7 @@
 package fp.scala.uno.application.api
 
 import fp.scala.uno.application.api.models.PreparerUnePartie
-import fp.scala.uno.repository.models.events.{AggregateUid, ProcessUid}
+import fp.scala.uno.repository.models.events.{AggregateUid, ProcessUid, RepositoryEvent}
 import fp.scala.uno.service.UnoCommandHandler
 import sttp.tapir.ztapir.ZServerEndpoint
 import sttp.tapir.ztapir.RichZEndpoint
@@ -11,6 +11,8 @@ import fp.scala.uno.domain.models.joueurs.Joueur
 import fp.scala.app.models.ApiResults.CRUDResult
 import fp.scala.utils.models.safeuuid.SafeUUID
 import fp.scala.app.AppLayer
+import fp.scala.app.api.EndpointsError
+import fp.scala.uno.domain.events.UnoEvent
 import zio.{IO, ZIO}
 import zio.prelude.AnySyntax
 
@@ -30,6 +32,24 @@ object UnoAPI {
 			val aggregateUid = AggregateUid.generate
 			val processUid = ProcessUid(req.processUid)
 
+
+			/*
+			import zio.direct.*
+			defer {
+				val get: IO[Nothing, Seq[Joueur]] = getJoueurs(req.joueurs)
+				val joueurs: Seq[Joueur] =  get.run
+				//création de la commande de préparation de partie
+				val unoCommand: UnoCommand.PreparerUnePartie = UnoCommand.PreparerUnePartie(joueurs, ListeDesCartes.pioche)
+
+				//récupération du service
+				val ch: UnoAPIDeps = ZIO.service[UnoCommandHandler].run
+
+				//traitement de la commande
+				val process: ZIO[Any, EndpointsError, Seq[RepositoryEvent[UnoEvent]]] = ch.processCommand(processUid, aggregateUid, unoCommand).mapError(UnoAPIError.toEndpointsError)
+				val events: Seq[RepositoryEvent[UnoEvent]] = process.run
+
+				CRUDResult(aggregateUid.safeUUID)
+			}*/
 			for
 				joueurs <- getJoueurs(req.joueurs)
 				unoCommand = UnoCommand.PreparerUnePartie(joueurs, ListeDesCartes.pioche)
