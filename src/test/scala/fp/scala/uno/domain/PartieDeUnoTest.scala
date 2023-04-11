@@ -1,6 +1,6 @@
-package fp.scala.domain
+package fp.scala.uno.domain
 
-import fp.scala.domain.UnoGenerator.*
+import fp.scala.uno.domain.UnoGenerator.*
 import fp.scala.uno.domain.models.ListeDesCartes.*
 import fp.scala.uno.domain.models.{ActionDeJeu, PartieDeUno, SensDeLaPartie}
 import fp.scala.uno.domain.models.joueurs.{Joueur, Joueurs}

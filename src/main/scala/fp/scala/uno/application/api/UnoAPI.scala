@@ -56,9 +56,12 @@ object UnoAPI {
 			for
 				joueurs <- getJoueurs(req.joueurs)
 				unoCommand = UnoCommand.PreparerUnePartie(joueurs, ListeDesCartes.pioche)
+
 				ch <- ZIO.service[UnoCommandHandler]
 				q <- ZIO.service[EventStreamer.EventRecever[UnoEvent]]
+
 				events <- ch.processCommand(processUid, aggregateUid, unoCommand).mapError { UnoAPIError.toEndpointsError(_) }
+
 				_ <- q.publishAll(events.map { _.event })
 			yield CRUDResult(aggregateUid.safeUUID)
 		}
@@ -70,7 +73,11 @@ object UnoAPI {
 
 			for
 				ch <- ZIO.service[UnoCommandHandler]
+				q <- ZIO.service[EventStreamer.EventRecever[UnoEvent]]
+
 				events <- ch.processCommand(ProcessUid(processUid), aggregateUid, command).mapError { UnoAPIError.toEndpointsError(_) }
+
+				_ <- q.publishAll(events.map { _.event })
 			yield ()
 		}
 

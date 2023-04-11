@@ -1,4 +1,4 @@
-package fp.scala.domain
+package fp.scala.uno.domain
 
 import fp.scala.uno.domain.models.ListeDesCartes.{CarteBleu, CarteJaune, CarteRouge, CarteVerte}
 import fp.scala.uno.domain.models.{CarteDeUno, PartieDeUno, SensDeLaPartie}

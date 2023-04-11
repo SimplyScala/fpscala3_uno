@@ -16,6 +16,7 @@ import zio.prelude.AnySyntax
 import zio.test.FailureRenderer.FailureMessage.Fragment
 
 import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
 
 abstract class EventRepository[E: JsonCodec]:
 	def getEventStream(eventStreamId: EventStreamId): IO[DbError, Seq[RepositoryEvent[E]]]
@@ -40,7 +41,13 @@ object EventRepository:
 											.tapError(e => ZIO.logErrorCause("getEventStream: decode", Cause.fail(e)))
 									processUid <- ZIO.fromEither(SafeUUID(pUid).map { ProcessUid(_) })
 									aggregateUid <- ZIO.fromEither(SafeUUID(pUid).map { AggregateUid(_) })
-								yield RepositoryEvent(processUid, aggregateUid, AggregateName(aName), OffsetDateTime.parse(sentDate), evt)
+								yield RepositoryEvent
+									( processUid
+									, aggregateUid
+									, AggregateName(aName)
+									, OffsetDateTime.parse(sentDate, DateTimeFormatter.ISO_DATE_TIME)
+									, evt
+									)
 
 								rEvt.mapError(DbError.DecodingError(_))
 							} |> ZIO.collectAll
@@ -52,7 +59,7 @@ object EventRepository:
 							( e.processUid.safeUUID.safeValue
 							, e.aggregateUid.safeUUID.safeValue
 							, e.aggregateName.value
-							, e.sentDate.toJson, e.event.toJson
+							, e.sentDate.format(DateTimeFormatter.ISO_DATE_TIME), e.event.toJson
 							)
 						})
 						.transact(cnx)
@@ -69,7 +76,7 @@ private object Req:
 	def list(eventStreamId: EventStreamId): Fragment =
 		val aggUid = eventStreamId.id.safeUUID.safeValue
 		val aggName = eventStreamId.aggregateName.value
-		sql"""select processuid, aggregateuid, aggregatename, sentdate, jsonb_set(valuez, '{insertorder}', to_jsonb(insertorder), true)
+		sql"""select processuid, aggregateuid, aggregatename, sentdate, valuez
 		     from events
 			 where aggregatename=$aggName
 			 and aggregateuid=$aggUid

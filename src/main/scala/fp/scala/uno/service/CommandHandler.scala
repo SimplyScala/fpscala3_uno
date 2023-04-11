@@ -24,7 +24,7 @@ trait UnoCommandHandler:
 
 object UnoCommandHandler extends ApplyTo:
 	val live: ZLayer[EventRepository[UnoEvent], Nothing, UnoCommandHandler] =
-		ZIO.service[EventRepository[UnoEvent]].map { evtRepo =>
+		ZIO.service[EventRepository[UnoEvent]].map { (evtRepo: EventRepository[UnoEvent]) =>
 			new UnoCommandHandler:
 				import UnoEventJsonCodec.UnoEventJsonCodec
 

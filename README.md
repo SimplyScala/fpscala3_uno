@@ -26,6 +26,19 @@ la progression du développement du jeu; en fonction des concepts illutrés; est
 La branche `rawDev` représente le jeu coder "complètement" (avec tous les concepts d'un coup)
 
 ## Démo
+                         
+### Pré-requis
+                                    
+> renseigner ces variables d'environnement avec les valeurs de votre base postgres et exporter les dans le scope de votre appli
+
+```
+export POSTGRESQL_ADDON_DB="dbname"
+export POSTGRESQL_ADDON_HOST="localhost"
+export POSTGRESQL_ADDON_PASSWORD=""
+export POSTGRESQL_ADDON_PORT="db_port"
+export POSTGRESQL_ADDON_USER="dbuser"
+export POSTGRESQL_ADDON_VERSION="14"
+```
 
 ### Lancer le serveur
 
@@ -43,17 +56,7 @@ La branche `rawDev` représente le jeu coder "complètement" (avec tous les conc
 
 ### jouer un commande Uno
 
-> curl -X POST --location "http://localhost:2000/api/v1/unogame" \
--H "Content-Type: application/json" \
--d "{ \"processUid\": \"98064f99-fc82-4634-86e3-28d048be3754\"
-, \"joueurs\": [\"98064f99-fc82-4634-86e3-28d048be3753\", \"98064f99-fc82-4634-86e3-28d048be3752\", \"98064f99-fc82-4634-86e3-28d048be3759\"]
-}"
-
-> curl -X PATCH --location "http://localhost:2000/api/v1/unogame/:gameuid" \
--H "Content-Type: application/json" \
--d "{ \"processUid\": \"98064f99-fc82-4634-86e3-28d048be3754\"
-, \"joueurs\": [\"98064f99-fc82-4634-86e3-28d048be3753\", \"98064f99-fc82-4634-86e3-28d048be3752\", \"98064f99-fc82-4634-86e3-28d048be3759\"]
-}"
+cf. `src/main/resources/Unogame.http`
 
 ## Ressources
 
@@ -61,3 +64,6 @@ https://github.com/softwaremill/tapir/blob/master/examples/src/main/scala/sttp/t
 
 https://zio.dev
 https://zio.dev/reference/concurrency/hub
+
+
+ZIO.attempt(Random.shuflle(seq))
