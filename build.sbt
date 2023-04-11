@@ -10,7 +10,11 @@ lazy val uno = project
 		scalaVersion := scala3Version,
 
 		//scalacOptions += "-rewrite",
-		scalacOptions := Seq("-Xmax-inlines", "80"),
+		scalacOptions ++= Seq
+			( "-Xmax-inlines", "80"
+			, "-JXss1024m"
+			,"-JXmx8G"
+			),
 		//scalacOptions += "-Wconf:cat=other-match-analysis:error",
 
 		libraryDependencies += "org.scalameta" %% "munit" % "0.7.29" % Test,
