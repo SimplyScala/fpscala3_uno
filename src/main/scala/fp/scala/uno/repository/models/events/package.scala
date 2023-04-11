@@ -1,9 +1,10 @@
 package fp.scala.uno.repository.models
 
-import fp.scala.utils.models.safeuuid.SafeUUID
+import fp.scala.utils.models.safeuuid.*
 import zio.json.JsonCodec
 import zio.prelude.*
 import fp.scala.utils.models.bindings.json.SafeUUIDJsonCodec.SafeUUIDJsonCodec
+import fp.scala.utils.typeclass.eq.Eq
 
 package object events:
 	opaque type ProcessUid <: SafeUUID = SafeUUID
@@ -18,6 +19,8 @@ package object events:
 		def generate: AggregateUid = SafeUUID.generate
 		extension (x: AggregateUid)
 			def safeUUID: SafeUUID = x
+		given Eq[AggregateUid] with
+			def equal(x: AggregateUid, y: AggregateUid) = x.safeUUID.safeValue == y.safeUUID.safeValue
 
 	opaque type AggregateName <: String = String
 	object AggregateName:

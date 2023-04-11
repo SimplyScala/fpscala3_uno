@@ -12,13 +12,15 @@ import fp.scala.utils.typeclass.domain.DomainEventTypeclass.UnoEventTypeclass
 import fp.scala.uno.domain.decide
 import zio.{IO, ZIO, ZLayer}
 import CommandHandlerError.*
+import fp.scala.uno.service.EventCache.CacheUsing
 import zio.prelude.AnySyntax
 
 import java.time.OffsetDateTime
 
 
 trait UnoCommandHandler:
-	def processCommand(processUid: ProcessUid,
+	def processCommand(cacheUsing: CacheUsing)
+	                  (processUid: ProcessUid,
 	                   aggregateUid: AggregateUid,
 	                   commande: UnoCommand): IO[CommandHandlerError, Seq[RepositoryEvent[UnoEvent]]]
 
@@ -28,7 +30,8 @@ object UnoCommandHandler extends ApplyTo:
 			new UnoCommandHandler:
 				import UnoEventJsonCodec.UnoEventJsonCodec
 
-				override def processCommand(processUid: ProcessUid,
+				override def processCommand(cacheUsing: CacheUsing)
+				                           (processUid: ProcessUid,
 				                            aggregateUid: AggregateUid,
 				                            commande: UnoCommand): IO[CommandHandlerError, Seq[RepositoryEvent[UnoEvent]]] = {
 					val evtStreamId = EventStreamId(aggregateUid, AggregateName("uno"))
