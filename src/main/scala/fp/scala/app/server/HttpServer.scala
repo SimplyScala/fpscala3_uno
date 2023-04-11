@@ -19,22 +19,15 @@ object HttpServer:
 
 		val corsConfig: CorsConfig = CorsConfig()
 
-    
-    /*
-    defer {
-      val serverConfig: ServerConfig = ZIO.service[ServerConfig].run
-
-      ZIO.logInfo(s"Setup fp-uno on port ${serverConfig.port}").run
-
-      Server.app((httpPrefix(Paths.prefix) >>> apiRoutes) @@ Middleware.cors(corsConfig)).withPort(serverConfig.port)
-    }
-    */
-    
 		for
 			serverConfig <- ZIO.service[ServerConfig]
 			_ <- ZIO.logInfo(s"Starting fp-uno on port ${serverConfig.port}")
 		yield Server.port(serverConfig.port) ++ Server.app(
-			(httpPrefix(Paths.prefix) >>> apiRoutes) @@ Middleware.cors(corsConfig)
+			((httpPrefix(Paths.prefix) >>> apiRoutes) ++
+			(httpPrefix(Paths.prefixEvent) >>> (
+				ZioHttpInterpreter().toHttp(APIRoutes.STREAM_APIs)))
+			)	
+				@@ Middleware.cors(corsConfig)
 		)
 
 	private def httpPrefix(prefix: Path) =
@@ -42,3 +35,36 @@ object HttpServer:
 			case req if req.path.startsWith(prefix) =>
 				req.setUrl(req.url.copy(path = Path.root ++ req.path.drop(prefix.segments.length)))
 		}
+
+
+/*
+Server.port(serverConfig.port) ++ Server.app(
+          ((httpPrefix(Paths.prefix) >>> apiRoutes) ++
+              (httpPrefix(Paths.prefixEvent) >>> (ZioHttpInterpreter()
+                  .toHttp(EventsAPI.endpoints) ++ ZioHttpInterpreter().toHttp(EventsAPI.updates))))
+              @@ Middleware.cors(corsConfig)
+        )
+
+val serverSetup: ZIO[ServerConfig, Nothing, Server[AppLayer, Throwable]] =
+        val apiRoutes: Http[AppLayer, Throwable, Request, Response] =
+            ZioHttpInterpreter().toHttp(RootAPI.rootHttp ::
+                (ParcoursEtudiantAPI.endpoints ++
+                    PlansAPI.endpoints ++
+                    ModuleAPI.endpoints ++
+                    DiplomeAPI.endpoints ++
+                    LabelAPI.endpoints
+                )
+            )
+
+        val corsConfig: CorsConfig = CorsConfig()
+
+        for
+            serverConfig <- ZIO.service[ServerConfig]
+            _ <- ZIO.logInfo(s"Starting iesm-back on port ${serverConfig.port}")
+        yield Server.port(serverConfig.port) ++ Server.app(
+          ((httpPrefix(Paths.prefix) >>> apiRoutes) ++
+              (httpPrefix(Paths.prefixEvent) >>> (ZioHttpInterpreter()
+                  .toHttp(EventsAPI.endpoints) ++ ZioHttpInterpreter().toHttp(EventsAPI.updates))))
+              @@ Middleware.cors(corsConfig)
+        )
+*/

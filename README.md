@@ -25,7 +25,7 @@ la progression du développement du jeu; en fonction des concepts illutrés; est
 
 La branche `rawDev` représente le jeu coder "complètement" (avec tous les concepts d'un coup)
 
-## Server
+## Démo
 
 ### Lancer le serveur
 
@@ -36,3 +36,28 @@ La branche `rawDev` représente le jeu coder "complètement" (avec tous les conc
 > 1
 
 > http://localhost:2000/api/v1
+ 
+### lancer un client
+
+> curl GET http://localhost:2000/api/vEvent/unogame/98064f99-fc82-4634-86e3-28d048be3754
+
+### jouer un commande Uno
+
+> curl -X POST --location "http://localhost:2000/api/v1/unogame" \
+-H "Content-Type: application/json" \
+-d "{ \"processUid\": \"98064f99-fc82-4634-86e3-28d048be3754\"
+, \"joueurs\": [\"98064f99-fc82-4634-86e3-28d048be3753\", \"98064f99-fc82-4634-86e3-28d048be3752\", \"98064f99-fc82-4634-86e3-28d048be3759\"]
+}"
+
+> curl -X PATCH --location "http://localhost:2000/api/v1/unogame/:gameuid" \
+-H "Content-Type: application/json" \
+-d "{ \"processUid\": \"98064f99-fc82-4634-86e3-28d048be3754\"
+, \"joueurs\": [\"98064f99-fc82-4634-86e3-28d048be3753\", \"98064f99-fc82-4634-86e3-28d048be3752\", \"98064f99-fc82-4634-86e3-28d048be3759\"]
+}"
+
+## Ressources
+
+https://github.com/softwaremill/tapir/blob/master/examples/src/main/scala/sttp/tapir/examples/streaming/StreamingZioHttpServer.scala
+
+https://zio.dev
+https://zio.dev/reference/concurrency/hub

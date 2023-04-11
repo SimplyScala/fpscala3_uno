@@ -14,8 +14,9 @@ import sttp.monad.syntax.MonadErrorOps
 import sttp.tapir.generic.auto.*
 import sttp.tapir.json.zio.*
 import sttp.tapir.ztapir.*
-import sttp.tapir.{CodecFormat,Endpoint}
+import sttp.tapir.{CodecFormat, Endpoint, PublicEndpoint}
 import zio.*
+import zio.stream.{ZStream, Stream}
 
 import java.nio.charset.StandardCharsets
 
@@ -35,7 +36,7 @@ object UnoEndPoints {
 			.errorOut(EndpointsError.handleOutError)
 			.out(emptyOutput.and(statusCode(StatusCode.Ok)))
 
-	val streamEventsEP/*: Endpoint[Unit, (SafeUUID, JouerUnePartieAPICmd), EndpointsError, Unit, Any]*/ =
+	val streamEventsEP: PublicEndpoint[SafeUUID, Unit, Stream[Throwable, ServerSentEvent], ZioStreams] =
 		endpoint.get
 			.in("unogame" / path[SafeUUID]("uid"))
 			.out(streamTextBody(ZioStreams)(CodecFormat.TextEventStream(), Some(StandardCharsets.UTF_8)))

@@ -1,0 +1,10 @@
+POST http://localhost:2000/api/v1/unogame
+Content-Type: application/json
+
+{ "processUid": "98064f99-fc82-4634-86e3-28d048be3754"
+, "joueurs": ["98064f99-fc82-4634-86e3-28d048be3753", "98064f99-fc82-4634-86e3-28d048be3752", "98064f99-fc82-4634-86e3-28d048be3759"]
+}
+
+###
+GET http://localhost:2000/api/vEvent/unogame/98064f99-fc82-4634-86e3-28d048be3754
+

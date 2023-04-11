@@ -3,7 +3,7 @@ package fp.scala.uno.application.api
 import fp.scala.uno.application.api.models.{JouerUnePartieAPICmd, PreparerUnePartieAPICmd}
 import JouerUnePartieAPICmd.*
 import fp.scala.uno.repository.models.events.{AggregateUid, ProcessUid}
-import fp.scala.uno.service.{UnoCommandHandler, EventStreamer}
+import fp.scala.uno.service.{EventStreamer, UnoCommandHandler}
 import sttp.tapir.ztapir.ZServerEndpoint
 import sttp.tapir.ztapir.RichZEndpoint
 import fp.scala.uno.domain.commands.UnoCommand
@@ -13,25 +13,25 @@ import fp.scala.uno.domain.models.joueurs.Joueur
 import fp.scala.app.models.ApiResults.CRUDResult
 import fp.scala.utils.models.safeuuid.SafeUUID
 import fp.scala.app.AppLayer
+import fp.scala.uno.service.EventStreamer.EventRecever
 import sttp.capabilities.zio.ZioStreams
-import zio.{Hub, IO, ZIO}
+import zio.{Duration, Hub, IO, Scope, ZIO}
 import sttp.model.sse.ServerSentEvent
 import zio.json.*
 import zio.stream.*
 import zio.prelude.AnySyntax
+import fp.scala.utils.base.dsl.*
+
+import java.util.concurrent.TimeUnit
 
 
 object UnoAPI {
-	type UnoAPIDeps = UnoCommandHandler & EventStreamer.EventRecever[UnoEvent]
+	type UnoAPIDeps = UnoCommandHandler & EventStreamer.EventRecever[UnoEvent]/* & Scope*/
 
-	lazy val endpoints: List[ZServerEndpoint[UnoAPIDeps, Any]] = preparerUnePartie :: Nil
+	lazy val endpoints: List[ZServerEndpoint[UnoAPIDeps, Any]] = preparerUnePartie :: jouerUnePartie :: Nil
+	lazy val endpointsStreams: List[ZServerEndpoint[UnoAPIDeps, ZioStreams]] = streamEvents :: Nil
 
-	/*
-	{ "processUid": "98064f99-fc82-4634-86e3-28d048be3754"
-	, "joueurs": ["98064f99-fc82-4634-86e3-28d048be3753", "98064f99-fc82-4634-86e3-28d048be3752", "98064f99-fc82-4634-86e3-28d048be3759"]
-	}
-	*/
-	val preparerUnePartie: ZServerEndpoint[UnoAPIDeps, Any]/*: Endpoint[Unit, PreparerUnePartie, Unit, CRUDResult, Any] =*/ =
+	private val preparerUnePartie: ZServerEndpoint[UnoAPIDeps, Any]/*: Endpoint[Unit, PreparerUnePartie, Unit, CRUDResult, Any] =*/ =
 		UnoEndPoints.preparerUnePartieEP.zServerLogic { (req: PreparerUnePartieAPICmd) =>
 			val aggregateUid = AggregateUid.generate
 			val processUid = ProcessUid(req.processUid)
@@ -63,7 +63,7 @@ object UnoAPI {
 			yield CRUDResult(aggregateUid.safeUUID)
 		}
 
-	val jouerUnePartie: ZServerEndpoint[UnoAPIDeps, Any] =
+	private val jouerUnePartie: ZServerEndpoint[UnoAPIDeps, Any] =
 		UnoEndPoints.jouerUnePartieEP.zServerLogic { (aUid: SafeUUID, req: JouerUnePartieAPICmd) =>
 			val (processUid, command) = req.toDomain//.map { case (p, c) => (ProcessUid(p), c) }
 			val aggregateUid = AggregateUid(aUid)
@@ -74,16 +74,17 @@ object UnoAPI {
 			yield ()
 		}
 
-	val streamEvents: ZServerEndpoint[UnoAPIDeps, ZioStreams] = UnoEndPoints.streamEventsEP.serverLogicSuccess { (aggregateUid: SafeUUID) =>
+	private val streamEvents: ZServerEndpoint[UnoAPIDeps, ZioStreams] = UnoEndPoints.streamEventsEP.zServerLogic { (aggregateUid: SafeUUID) =>
 		import fp.scala.uno.service.UnoEventJsonCodec.UnoEventJsonCodec
 
 		for
 			q <- ZIO.service[EventStreamer.EventRecever[UnoEvent]]
 			stream = ZStream.fromHub(q)
-			_ <- ZIO.logInfo("someone listen")
+			//_ <- ZIO.logInfo("someone listen")
 			newStream = stream.map { event => ServerSentEvent(Some(event.toJson), Some("UnoEvent")) }
 			/** nécessaire pour démarrer la connection avec le client qui subscribe le SSE */
-			ackStream = ZStream(ServerSentEvent())
+			ackStream = ZStream(ServerSentEvent("{message: Start listenning UnoEvent}".some))
+			//tStream = ZStream.tick(Duration(500, TimeUnit.MILLISECONDS)).map { _ => ServerSentEvent(Some("tick")) }
 		yield ackStream ++ newStream
 	}
 
