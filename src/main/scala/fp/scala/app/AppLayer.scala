@@ -4,7 +4,7 @@ import doobie.util.transactor.Transactor
 import fp.scala.app.infrastructure.JdbcConnection
 import fp.scala.uno.application.api.UnoAPI.UnoAPIDeps
 import fp.scala.uno.repository.EventRepository
-import fp.scala.uno.service.UnoCommandHandler
+import fp.scala.uno.service.{UnoCommandHandler, EventStreamer}
 import fp.scala.uno.domain.events.UnoEvent
 import fp.scala.uno.service.UnoEventJsonCodec.UnoEventJsonCodec
 import zio.*
@@ -15,4 +15,7 @@ object AppLayer:
 	lazy val live: ZLayer[Scope, Any, AppLayer] =
 		val cnxLayer: ZLayer[Scope, Any, Transactor[Task]] = AppConfig.live >>> JdbcConnection.live
 
-		AppConfig.live ++ cnxLayer ++ (cnxLayer >>> EventRepository.live[UnoEvent] >>> UnoCommandHandler.live)
+		AppConfig.live ++
+		cnxLayer ++
+		/** UnoAPIDeps */
+		(cnxLayer >>> EventRepository.live[UnoEvent] >>> UnoCommandHandler.live ++ EventStreamer.live[UnoEvent])

@@ -15,7 +15,7 @@ import fp.scala.app.AppLayer
 object HttpServer:
 	val serverSetup: ZIO[ServerConfig, Nothing, Server[AppLayer, Throwable]] =
 		val apiRoutes: Http[AppLayer, Throwable, Request, Response] =
-			ZioHttpInterpreter().toHttp(RootAPI.rootAPI :: APIRoutes.APIs/*:: (ParcoursEtudiantAPI.endpoints ++ PlansAPI.endpoints)*/)
+			ZioHttpInterpreter().toHttp(RootAPI.rootAPI :: APIRoutes.APIs)
 
 		val corsConfig: CorsConfig = CorsConfig()
 

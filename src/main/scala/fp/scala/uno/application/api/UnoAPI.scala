@@ -1,23 +1,28 @@
 package fp.scala.uno.application.api
 
-import fp.scala.uno.application.api.models.{PreparerUnePartieAPICmd, JouerUnePartieAPICmd}
+import fp.scala.uno.application.api.models.{JouerUnePartieAPICmd, PreparerUnePartieAPICmd}
 import JouerUnePartieAPICmd.*
 import fp.scala.uno.repository.models.events.{AggregateUid, ProcessUid}
-import fp.scala.uno.service.UnoCommandHandler
+import fp.scala.uno.service.{UnoCommandHandler, EventStreamer}
 import sttp.tapir.ztapir.ZServerEndpoint
 import sttp.tapir.ztapir.RichZEndpoint
 import fp.scala.uno.domain.commands.UnoCommand
+import fp.scala.uno.domain.events.UnoEvent
 import fp.scala.uno.domain.models.ListeDesCartes
 import fp.scala.uno.domain.models.joueurs.Joueur
 import fp.scala.app.models.ApiResults.CRUDResult
 import fp.scala.utils.models.safeuuid.SafeUUID
 import fp.scala.app.AppLayer
-import zio.{IO, ZIO}
+import sttp.capabilities.zio.ZioStreams
+import zio.{Hub, IO, ZIO}
+import sttp.model.sse.ServerSentEvent
+import zio.json.*
+import zio.stream.*
 import zio.prelude.AnySyntax
 
 
 object UnoAPI {
-	type UnoAPIDeps = UnoCommandHandler
+	type UnoAPIDeps = UnoCommandHandler & EventStreamer.EventRecever[UnoEvent]
 
 	lazy val endpoints: List[ZServerEndpoint[UnoAPIDeps, Any]] = preparerUnePartie :: Nil
 
@@ -30,7 +35,6 @@ object UnoAPI {
 		UnoEndPoints.preparerUnePartieEP.zServerLogic { (req: PreparerUnePartieAPICmd) =>
 			val aggregateUid = AggregateUid.generate
 			val processUid = ProcessUid(req.processUid)
-
 
 			/*
 			import zio.direct.*
@@ -53,10 +57,10 @@ object UnoAPI {
 				joueurs <- getJoueurs(req.joueurs)
 				unoCommand = UnoCommand.PreparerUnePartie(joueurs, ListeDesCartes.pioche)
 				ch <- ZIO.service[UnoCommandHandler]
+				q <- ZIO.service[EventStreamer.EventRecever[UnoEvent]]
 				events <- ch.processCommand(processUid, aggregateUid, unoCommand).mapError { UnoAPIError.toEndpointsError(_) }
+				_ <- q.publishAll(events.map { _.event })
 			yield CRUDResult(aggregateUid.safeUUID)
-
-			// TODO pousser les events dans une queue pour transmettre aux joueurs
 		}
 
 	val jouerUnePartie: ZServerEndpoint[UnoAPIDeps, Any] =
@@ -69,6 +73,19 @@ object UnoAPI {
 				events <- ch.processCommand(ProcessUid(processUid), aggregateUid, command).mapError { UnoAPIError.toEndpointsError(_) }
 			yield ()
 		}
+
+	val streamEvents: ZServerEndpoint[UnoAPIDeps, ZioStreams] = UnoEndPoints.streamEventsEP.serverLogicSuccess { (aggregateUid: SafeUUID) =>
+		import fp.scala.uno.service.UnoEventJsonCodec.UnoEventJsonCodec
+
+		for
+			q <- ZIO.service[EventStreamer.EventRecever[UnoEvent]]
+			stream = ZStream.fromHub(q)
+			_ <- ZIO.logInfo("someone listen")
+			newStream = stream.map { event => ServerSentEvent(Some(event.toJson), Some("UnoEvent")) }
+			/** nécessaire pour démarrer la connection avec le client qui subscribe le SSE */
+			ackStream = ZStream(ServerSentEvent())
+		yield ackStream ++ newStream
+	}
 
 	private def getJoueurs(js: Seq[SafeUUID]): IO[Nothing, Seq[Joueur]] =
 		val joueurs = js
