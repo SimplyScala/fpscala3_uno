@@ -1,0 +1,73 @@
+### Préparer la partie
+
+POST http://localhost:2000/api/v1/unogame
+Content-Type: application/json
+
+{ "processUid": "98064f99-fc82-4634-86e3-28d048be3754"
+, "joueurs": ["98064f99-fc82-4634-86e3-28d048be3753", "98064f99-fc82-4634-86e3-28d048be3752", "98064f99-fc82-4634-86e3-28d048be3759"]
+}
+
+### Démarrer la partie
+
+# curl -X PATCH --location "http://localhost:2000/api/v1/unogame/:gameuid"
+#-H "Content-Type: application/json"
+#-d "{ \"DemarrerLaPartie\": {\"processUid\": \"da228734-f56c-4895-9930-f4a4c5c494dc\" }}"
+PATCH http://localhost:2000/api/v1/unogame/da228734-f56c-4895-9930-f4a4c5c494dc
+Content-Type: application/json
+
+{
+    "DemarrerLaPartie": {
+        "processUid": "98064f99-fc82-4634-86e3-28d048be3755"
+    }
+}
+
+### Joueur 1
+
+PATCH http://localhost:2000/api/v1/unogame/da228734-f56c-4895-9930-f4a4c5c494dc
+Content-Type: application/json
+
+{
+    "JouerUneCarte": {
+        "processUid": "98064f99-fc82-4634-86e3-28d048be3756",
+        "joueur": "98064f99-fc82-4634-86e3-28d048be3753",
+        "carteJouee": { "CarteNumerique": {
+            "valeur": { "ZERO":  {} },
+            "couleur": { "Jaune": {} }
+        }
+        }}
+}
+
+### Joueur 2
+
+PATCH http://localhost:2000/api/v1/unogame/da228734-f56c-4895-9930-f4a4c5c494dc
+Content-Type: application/json
+
+{
+    "JouerUneCarte": {
+        "processUid": "98064f99-fc82-4634-86e3-28d048be3757",
+        "joueur": "98064f99-fc82-4634-86e3-28d048be3752",
+        "carteJouee": { "CarteNumerique": {
+            "valeur": { "ZERO":  {} },
+            "couleur": { "Jaune": {} }
+        }}
+    }
+}
+
+### Joueur 3
+
+PATCH http://localhost:2000/api/v1/unogame/da228734-f56c-4895-9930-f4a4c5c494dc
+Content-Type: application/json
+
+{
+    "JouerUneCarte": {
+        "processUid": "98064f99-fc82-4634-86e3-28d048be3757",
+        "joueur": "98064f99-fc82-4634-86e3-28d048be3759",
+        "carteJouee": { "CarteNumerique": {
+            "valeur": { "DEUX":  {} },
+            "couleur": { "Jaune": {} }
+        }}
+    }
+}
+
+### SSE
+GET http://localhost:2000/api/vEvent/unogame/da228734-f56c-4895-9930-f4a4c5c494dc
