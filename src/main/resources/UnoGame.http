@@ -11,8 +11,8 @@ Content-Type: application/json
 
 # curl -X PATCH --location "http://localhost:2000/api/v1/unogame/:gameuid"
 #-H "Content-Type: application/json"
-#-d "{ \"DemarrerLaPartie\": {\"processUid\": \"da228734-f56c-4895-9930-f4a4c5c494dc\" }}"
-PATCH http://localhost:2000/api/v1/unogame/da228734-f56c-4895-9930-f4a4c5c494dc
+#-d "{ \"DemarrerLaPartie\": {\"processUid\": \"c1d022c5-5b6b-49c5-8eae-f034d7125900\" }}"
+PATCH http://localhost:2000/api/v1/unogame/c1d022c5-5b6b-49c5-8eae-f034d7125900
 Content-Type: application/json
 
 {
@@ -23,7 +23,7 @@ Content-Type: application/json
 
 ### Joueur 1
 
-PATCH http://localhost:2000/api/v1/unogame/da228734-f56c-4895-9930-f4a4c5c494dc
+PATCH http://localhost:2000/api/v1/unogame/c1d022c5-5b6b-49c5-8eae-f034d7125900
 Content-Type: application/json
 
 {
@@ -39,7 +39,7 @@ Content-Type: application/json
 
 ### Joueur 2
 
-PATCH http://localhost:2000/api/v1/unogame/da228734-f56c-4895-9930-f4a4c5c494dc
+PATCH http://localhost:2000/api/v1/unogame/c1d022c5-5b6b-49c5-8eae-f034d7125900
 Content-Type: application/json
 
 {
@@ -55,7 +55,7 @@ Content-Type: application/json
 
 ### Joueur 3
 
-PATCH http://localhost:2000/api/v1/unogame/da228734-f56c-4895-9930-f4a4c5c494dc
+PATCH http://localhost:2000/api/v1/unogame/c1d022c5-5b6b-49c5-8eae-f034d7125900
 Content-Type: application/json
 
 {
@@ -70,4 +70,4 @@ Content-Type: application/json
 }
 
 ### SSE
-# curl http://localhost:2000/api/vEvent/unogame/da228734-f56c-4895-9930-f4a4c5c494dc
+# curl http://localhost:2000/api/vEvent/unogame/c1d022c5-5b6b-49c5-8eae-f034d7125900

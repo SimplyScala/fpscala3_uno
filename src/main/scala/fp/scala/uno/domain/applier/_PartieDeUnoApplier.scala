@@ -49,7 +49,6 @@ trait _PartieDeUnoApplier {
 
 		case UnJoueurAJoueUneMauvaiseCarte(joueur, carteJouee) => ???
 
-
 		case UnJoueurNaPasJoueASonTour(joueur) => state
 
 		/*

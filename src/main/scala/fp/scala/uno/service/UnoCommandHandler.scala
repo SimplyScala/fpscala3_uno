@@ -47,14 +47,13 @@ object UnoCommandHandler extends ApplyTo:
 					val evtStreamId = EventStreamId(aggregateUid, AggregateName("uno"))
 					for
 						cacheUsing <- cache.get_(aggregateUid)
-
 						previousEvts <-	getPreviousEvents(cacheUsing, evtStreamId)
+
 						currentState = applyTo(PartieDeUno.PartieAPreparer)(previousEvts.map { _.event })
 
 						newEvents <- ZIO.fromEither(decide(commande, currentState)).mapError { DomainError(_) }
 
 						repoEvts = newEvents.map { repoEvtBuilder(processUid, aggregateUid, AggregateName("uno")) }
-
 						_ <- evtRepo.saveEvents(evtStreamId, repoEvts).mapError { FromDbError(_) }
 						_ <- cache.update(updateCacheEvents(aggregateUid, previousEvts ++ repoEvts))
 					yield repoEvts
