@@ -29,6 +29,10 @@ La branche `rawDev` représente le jeu coder "complètement" (avec tous les conc
 
 ### Pré-requis
 
+#### PostgreSQL
+
+> avoir à disposition une BDD PostgreSQL version 14
+
 #### variables d'environnements
 
 > renseigner ces variables d'environnement avec les valeurs de votre base postgres et exporter les dans le scope de votre appli
