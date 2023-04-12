@@ -50,7 +50,7 @@ trait _PartieDeUnoApplier {
 		case UnJoueurAJoueUneMauvaiseCarte(joueur, carteJouee) => ???
 
 
-		case UnJoueurNaPasJoueASonTour(joueur) => ???
+		case UnJoueurNaPasJoueASonTour(joueur) => state
 
 		/*
 		joueurs.updateIf(_.id === joueur) { j => j.copy(main = ) }

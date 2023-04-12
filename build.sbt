@@ -12,7 +12,7 @@ lazy val uno = project
 		//scalacOptions += "-rewrite",
 		scalacOptions ++= Seq
 			( "-Xmax-inlines", "80"
-			, "-JXss1024m"
+			, "-JXss2G"
 			,"-JXmx8G"
 			),
 		//scalacOptions += "-Wconf:cat=other-match-analysis:error",

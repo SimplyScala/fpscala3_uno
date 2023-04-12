@@ -70,4 +70,4 @@ Content-Type: application/json
 }
 
 ### SSE
-GET http://localhost:2000/api/vEvent/unogame/da228734-f56c-4895-9930-f4a4c5c494dc
+# curl http://localhost:2000/api/vEvent/unogame/da228734-f56c-4895-9930-f4a4c5c494dc

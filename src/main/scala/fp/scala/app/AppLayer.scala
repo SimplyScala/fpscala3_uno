@@ -18,4 +18,4 @@ object AppLayer:
 		AppConfig.live ++
 		cnxLayer ++
 		/** UnoAPIDeps */
-		(cnxLayer >>> EventRepository.live[UnoEvent] >>> UnoCommandHandler.live ++ EventStreamer.live[UnoEvent] ++ EventCache.live)
+		((cnxLayer >>> EventRepository.live[UnoEvent]) ++ EventCache.live >>> UnoCommandHandler.live ++ EventStreamer.live[UnoEvent] ++ EventCache.live)

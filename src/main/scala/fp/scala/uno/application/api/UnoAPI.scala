@@ -17,7 +17,7 @@ import fp.scala.utils.models.safeuuid.SafeUUID
 import fp.scala.app.AppLayer
 import fp.scala.uno.service.EventStreamer.EventRecever
 import fp.scala.uno.service.EventCache
-import fp.scala.uno.service.EventCache.CacheUsing
+import fp.scala.uno.service.EventCache.{CacheUsing, StaticCache}
 import EventCache.EventsMemoryCache.*
 import sttp.capabilities.zio.ZioStreams
 import zio.{Duration, Hub, IO, Scope, ZIO}
@@ -36,7 +36,7 @@ object UnoAPI {
 	lazy val endpoints: List[ZServerEndpoint[UnoAPIDeps, Any]] = preparerUnePartieAPI :: jouerUnePartieAPI :: Nil
 	lazy val endpointsStreams: List[ZServerEndpoint[UnoAPIDeps, ZioStreams]] = streamEventsAPI :: Nil
 
-	private val preparerUnePartieAPI: ZServerEndpoint[UnoAPIDeps, Any]/*: Endpoint[Unit, PreparerUnePartie, Unit, CRUDResult, Any] =*/ =
+	private val preparerUnePartieAPI: ZServerEndpoint[UnoAPIDeps, Any] =
 		UnoEndPoints.preparerUnePartieEP.zServerLogic { (req: PreparerUnePartieAPICmd) =>
 			val aggregateUid = AggregateUid.generate
 			val processUid = ProcessUid(req.processUid)
@@ -64,14 +64,10 @@ object UnoAPI {
 
 				ch <- ZIO.service[UnoCommandHandler]
 				hub <- ZIO.service[EventStreamer.EventRecever[UnoEvent]]
-				cache <- ZIO.service[EventCache.EventsMemoryCache]
 
-				cacheUsing <- cache.get_(aggregateUid)
-
-				events <- ch.processCommand(cacheUsing)(processUid, aggregateUid, unoCommand).mapError { UnoAPIError.toEndpointsError(_) }
+				events <- ch.processCommand(processUid, aggregateUid, unoCommand).mapError { UnoAPIError.toEndpointsError(_) }
 
 				_ <- hub.publishAll(events.map { _.event })
-				_ <- cache.update(updateCacheEvents(aggregateUid, events))
 			yield CRUDResult(aggregateUid.safeUUID)
 		}
 
@@ -83,30 +79,28 @@ object UnoAPI {
 			for
 				ch <- ZIO.service[UnoCommandHandler]
 				hub <- ZIO.service[EventStreamer.EventRecever[UnoEvent]]
-				cache <- ZIO.service[EventCache.EventsMemoryCache]
 
-				cacheUsing <- cache.get_(aggregateUid)
-
-				events <- ch.processCommand(cacheUsing)(ProcessUid(processUid), aggregateUid, command).mapError { UnoAPIError.toEndpointsError(_) }
+				events <- ch.processCommand(ProcessUid(processUid), aggregateUid, command)
+							.mapError { UnoAPIError.toEndpointsError(_) }
 
 				_ <- hub.publishAll(events.map { _.event })
-				_ <- cache.update(updateCacheEvents(aggregateUid, events))
 			yield ()
 		}
 
-	private val streamEventsAPI: ZServerEndpoint[UnoAPIDeps, ZioStreams] = UnoEndPoints.streamEventsEP.zServerLogic { (aggregateUid: SafeUUID) =>
-		import fp.scala.uno.service.UnoEventJsonCodec.UnoEventJsonCodec
+	private val streamEventsAPI: ZServerEndpoint[UnoAPIDeps, ZioStreams] =
+		UnoEndPoints.streamEventsEP.zServerLogic { (aggregateUid: SafeUUID) =>
+			import fp.scala.uno.service.UnoEventJsonCodec.UnoEventJsonCodec
 
-		for
-			q <- ZIO.service[EventStreamer.EventRecever[UnoEvent]]
-			stream = ZStream.fromHub(q)
-			//_ <- ZIO.logInfo("someone listen")
-			newStream = stream.map { event => ServerSentEvent(Some(event.toJson), Some("UnoEvent")) }
-			/** nécessaire pour démarrer la connection avec le client qui subscribe le SSE */
-			ackStream = ZStream(ServerSentEvent("{message: Start listenning UnoEvent}".some))
-			//tStream = ZStream.tick(Duration(500, TimeUnit.MILLISECONDS)).map { _ => ServerSentEvent(Some("tick")) }
-		yield ackStream ++ newStream
-	}
+			for
+				q <- ZIO.service[EventStreamer.EventRecever[UnoEvent]]
+				stream = ZStream.fromHub(q)
+				//_ <- ZIO.logInfo("someone listen")
+				newStream = stream.map { event => ServerSentEvent(Some(event.toJson), Some("UnoEvent")) }
+				/** nécessaire pour démarrer la connection avec le client qui subscribe le SSE */
+				ackStream = ZStream(ServerSentEvent("{message: Start listenning UnoEvent}".some))
+				//tStream = ZStream.tick(Duration(500, TimeUnit.MILLISECONDS)).map { _ => ServerSentEvent(Some("tick")) }
+			yield ackStream ++ newStream
+		}
 
 	private def getJoueurs(js: Seq[SafeUUID]): IO[Nothing, Seq[Joueur]] =
 		val joueurs = js
@@ -115,8 +109,7 @@ object UnoAPI {
 
 		ZIO.succeed(joueurs)
 
-	private def updateCacheEvents(aggregateUid: AggregateUid,
-	                              newEvents: Seq[RepositoryEvent[UnoEvent]])
-	                             (cache: Map[AggregateUid, Seq[RepositoryEvent[UnoEvent]]]): Map[AggregateUid, Seq[RepositoryEvent[UnoEvent]]] =
+	private def updateCacheEvents(aggregateUid: AggregateUid, newEvents: Seq[RepositoryEvent[UnoEvent]])
+	                             (cache: StaticCache): StaticCache =
 		cache.map { case (k, v) => if(k === aggregateUid) (k, v ++ newEvents) else (k, v) }
 }
