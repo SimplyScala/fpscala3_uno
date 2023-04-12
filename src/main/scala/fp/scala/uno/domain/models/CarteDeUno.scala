@@ -4,7 +4,9 @@ import fp.scala.utils.typeclass.eq.Eq
 import fp.scala.utils.typeclass.ord.Ord
 import fp.scala.utils.typeclass.show.Show
 
-enum CarteDeUno:
+case class CarteDeUno(value: Int, couleur: Int, typedeCarte: String)
+
+/*enum CarteDeUno:
 	case CarteNumerique(valeur: ValeurNumeriqueDeCarte, couleur: CouleurDeCarte) extends CarteDeUno
 	case Joker(jokerType: JokerType, couleur: CouleurDeCarte) extends CarteDeUno
 	case Plus4Cartes extends CarteDeUno
@@ -31,4 +33,4 @@ enum CouleurDeCarte derives Eq, Show:
 enum JokerType derives Eq, Show:
 	case Plus2Cartes extends JokerType
 	case Passer extends JokerType
-	case ChangementDeSens extends JokerType
+	case ChangementDeSens extends JokerType*/
