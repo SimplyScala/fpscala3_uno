@@ -28,7 +28,9 @@ La branche `rawDev` représente le jeu coder "complètement" (avec tous les conc
 ## Démo
                          
 ### Pré-requis
-                                    
+                 
+#### variables d'environnements
+
 > renseigner ces variables d'environnement avec les valeurs de votre base postgres et exporter les dans le scope de votre appli
 
 ```
@@ -39,6 +41,10 @@ export POSTGRESQL_ADDON_PORT="db_port"
 export POSTGRESQL_ADDON_USER="dbuser"
 export POSTGRESQL_ADDON_VERSION="14"
 ```
+
+#### branche git
+
+> la branche `rawDev` contient le code le plus "complet"
 
 ### Lancer le serveur
 
