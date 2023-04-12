@@ -1,6 +1,6 @@
 package fp.scala.uno.domain.models
 
-import fp.scala.uno.domain.models.joueurs.Joueurs
+//import fp.scala.uno.domain.models.joueurs.Joueurs
 import fp.scala.utils.models.nel.NEL
 import fp.scala.utils.models.safeuuid.SafeUUID
 import fp.scala.utils.typeclass.eq.Eq
@@ -12,7 +12,7 @@ import scala.deriving.*
 enum PartieDeUno:
 	case PartieAPreparer extends PartieDeUno
 	
-	/**
+	/*/**
 	 * Une partie de Uno:
 	 */
 	case PartiePrete(//uid: SafeUUID,
@@ -25,6 +25,7 @@ enum PartieDeUno:
 	                   dernierJoueur: Option[SafeUUID],
 	                   pioche: Seq[CarteDeUno], 
 	                   talon: NEL[CarteDeUno]) extends PartieDeUno
+*/
 
 enum SensDeLaPartie:
 	case SensHoraire

@@ -8,8 +8,8 @@ import fp.scala.uno.domain.events.UnoEvent
 import fp.scala.uno.domain.events.UnoEvent.*
 import fp.scala.uno.domain.models.CarteDeUno.*
 import fp.scala.uno.domain.models.PartieDeUno.*
-import fp.scala.uno.domain.models.joueurs.Joueurs
-import fp.scala.uno.domain.models.joueurs.Joueurs.*
+//import fp.scala.uno.domain.models.joueurs.Joueurs
+//import fp.scala.uno.domain.models.joueurs.Joueurs.*
 import fp.scala.uno.domain.models.{CarteDeUno, PartieDeUno}
 import fp.scala.utils.base.dsl.*
 import fp.scala.utils.models.nel.NEL
@@ -18,7 +18,8 @@ import fp.scala.utils.typeclass.eq.Eq.*
 import fp.scala.utils.models.safeuuid.Typeclass.given_Eq_SafeUUID
 
 trait _PartieDeUnoDecider extends DemarrerUnePartie {
-	def decide(commande: UnoCommand, state: PartieDeUno): Either[UnoErreur, Seq[UnoEvent]] = commande match {
+	def decide(commande: UnoCommand, state: PartieDeUno): Either[UnoErreur, Seq[UnoEvent]] = ???
+		/*commande match {
 		case PreparerUnePartie(joueurs, pioche) =>
 			Joueurs(joueurs.toSet)
 				.map { js => LaPartieEstPreteAJouer(js, pioche) :: Nil }
@@ -44,9 +45,9 @@ trait _PartieDeUnoDecider extends DemarrerUnePartie {
 		case PiocherUneCarte(joueur) => partieEnCours(state, commande) { partieEncours =>
 			(UnJoueurAPiocheUneCarte(joueur, partieEncours.pioche.head) :: Nil).right
 		}
-	}
+	}*/
 
-	private def estCeAMonTourDeJouer(joueur: SafeUUID, partie: PartieEnCours): Either[Seq[UnoEvent], Unit] =
+	/*private def estCeAMonTourDeJouer(joueur: SafeUUID, partie: PartieEnCours): Either[Seq[UnoEvent], Unit] =
 		(for {
 			dernierJoueur <- partie.joueurs.find { _.uid.some === partie.dernierJoueur }
 			joueurTesté <- partie.joueurs.find { _.uid === joueur }
@@ -60,9 +61,9 @@ trait _PartieDeUnoDecider extends DemarrerUnePartie {
 				.exists { _.placement == 1 }
 
 			if(bonplacement) ().right else (UnJoueurNaPasJoueASonTour(joueur) :: Nil).left
-		}
+		}*/
 
-	private def estCeLaBonneCarteAjouer(joueur: SafeUUID,
+	/*private def estCeLaBonneCarteAjouer(joueur: SafeUUID,
 	                                    pioche: NEL[CarteDeUno],
 	                                    carteJouee: CarteDeUno): Either[Seq[UnoEvent], Unit] =
 		pioche.head match {
@@ -77,21 +78,21 @@ trait _PartieDeUnoDecider extends DemarrerUnePartie {
 			case Joker(type_, couleur) => ???
 			case Plus4Cartes => ???
 			case ChangementDeCouleur => ???
-		}
+		}*/
 
-	private def partiePreteAjouer(currentState: PartieDeUno, command: UnoCommand)
+	/*private def partiePreteAjouer(currentState: PartieDeUno, command: UnoCommand)
 	                             (ifPartiePreteAction: PartiePrete => Either[UnoErreur, Seq[UnoEvent]]): Either[UnoErreur, Seq[UnoEvent]] = currentState match {
 		case PartieAPreparer => ???
 		case p: PartiePrete   => ifPartiePreteAction(p)
 		case _: PartieEnCours => ???
-	}
+	}*/
 
-	private def partieEnCours(currentState: PartieDeUno, command: UnoCommand)
+	/*private def partieEnCours(currentState: PartieDeUno, command: UnoCommand)
 	                         (ifPartieEnCoursAction: PartieEnCours => Either[UnoErreur, Seq[UnoEvent]]): Either[UnoErreur, Seq[UnoEvent]] = currentState match {
 		case PartieAPreparer => ???
 		case _: PartiePrete => ???
 		case p: PartieEnCours => ifPartieEnCoursAction(p)
-	}
+	}*/
 }
 
 

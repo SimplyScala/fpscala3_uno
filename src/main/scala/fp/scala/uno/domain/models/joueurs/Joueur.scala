@@ -6,7 +6,6 @@ import fp.scala.utils.models.safeuuid.SafeUUID
 
 case class Joueur(uid: SafeUUID,
                   nom: String,
-                  // TODO représenter le placement pour qu'il ne puisse pas y avoir d'incohérence, peut être dans Joueurs
                   placement: Int,
                   main: Seq[CarteDeUno] = Nil)
 
@@ -15,6 +14,8 @@ case class Joueur(uid: SafeUUID,
  *      - Un Set (de N joueurs) d'au moins 3 joueurs
  *      - les placements vont de 1 à N
  * */
+
+/*
 type Joueurs = Joueurs.JoueursImpl
 
 object Joueurs:
@@ -31,4 +32,4 @@ object Joueurs:
 			val updatedJoueurs = js.joueurs.map { j => if(predicate(j)) f(j) else j }
 			JoueursImpl(updatedJoueurs)
 		def size: Int = js.joueurs.size
-		def find(predicate: Joueur => Boolean): Option[Joueur] = js.joueurs.find(predicate)
+		def find(predicate: Joueur => Boolean): Option[Joueur] = js.joueurs.find(predicate)*/

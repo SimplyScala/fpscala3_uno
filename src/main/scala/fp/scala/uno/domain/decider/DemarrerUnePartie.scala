@@ -3,15 +3,15 @@ package fp.scala.uno.domain.decider
 import fp.scala.uno.domain.events.UnoEvent
 import fp.scala.uno.domain.models.CarteDeUno
 import fp.scala.uno.domain.models.joueurs.Joueur
-import fp.scala.uno.domain.models.joueurs.Joueurs
+//import fp.scala.uno.domain.models.joueurs.Joueurs
 import fp.scala.utils.models.nel.NEL
 import fp.scala.utils.models.safeuuid.SafeUUID
 
 private[decider] trait DemarrerUnePartie {
-	protected def distribuerLesCartesAuxJoueurs(joueurs: Joueurs,
-	                                            pioche: NEL[CarteDeUno],
-	                                            nbDeCarteADistribuer: Int): List[UnoEvent] =
-		val nbJoueurs = joueurs.size
+	protected def distribuerLesCartesAuxJoueurs(/*joueurs: Joueurs,
+	                                            */pioche: NEL[CarteDeUno],
+	                                            nbDeCarteADistribuer: Int): List[UnoEvent] = ???
+		/*val nbJoueurs = joueurs.size
 
 		val cardsToPick = (1 :: (1 to nbDeCarteADistribuer * nbJoueurs)
 			.toList
@@ -37,7 +37,7 @@ private[decider] trait DemarrerUnePartie {
 		result.joueursAvecMains.flatMap { case (jUid, cartes) =>
 			cartes.map { carte => UnoEvent.UneCarteAEteDistribuee(jUid, carte) }
 		}
-		.toList
+		.toList*/
 
 	private case class MainDesJoueurs(counter: Int = 0,
 	                                  //cartesARetirer: Seq[Int] = Nil,
